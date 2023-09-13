@@ -3,6 +3,7 @@ library(shiny)
 
 css_content <- "
 
+
 .our-team {
   padding: 30px 0 40px;
   margin-bottom: 30px;

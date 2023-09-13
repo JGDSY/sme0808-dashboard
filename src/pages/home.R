@@ -7,6 +7,13 @@ source("./src/pages/table_page.R")
 
 new_media <- "
 
+html {background: #89a0ad}
+
+.headerdiv {
+  background: #89a0ad;
+}
+
+
 @media (max-width: 955px) {
     .navbar-header .navbar-brand {float: left; text-align: center; width: 100%}
     .navbar-header { width:100% }
@@ -57,7 +64,7 @@ width: 100%
 
 home_page <- fluidPage(
   tags$head(tags$style(HTML(new_media))),
-  
+  class="headerdiv",
   
   navbarPage(
     inverse = T,
