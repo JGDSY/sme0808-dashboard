@@ -61,9 +61,26 @@ width: 100%
 
 "
 
+ns <- NS('home')
+dimensionId <- ns("dimension")
 
 home_page <- fluidPage(
-  tags$head(tags$style(HTML(new_media))),
+  tags$head(
+    tags$style(HTML(new_media)),
+    tags$script('
+    var dimension = [0, 0];
+    $(document).on("shiny:connected", function(e) {
+      dimension[0] = window.innerWidth;
+      dimension[1] = window.innerHeight;
+      Shiny.onInputChange("dimension", dimension);
+    });
+    $(window).resize(function(e) {
+      dimension[0] = window.innerWidth;
+      dimension[1] = window.innerHeight;
+      Shiny.onInputChange("dimension", dimension);
+    });
+  ', dimensionId)
+  ),
   class="headerdiv",
   
   navbarPage(
