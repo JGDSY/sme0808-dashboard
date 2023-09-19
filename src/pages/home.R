@@ -2,62 +2,59 @@ library(shiny)
 library(bslib)
 
 source("./src/pages/about.R")
-source("./src/pages/home_content.R")
-source("./src/pages/table_page.R")
+source("./src/pages/plots.R")
+source("./src/pages/models.R")
 
 new_media <- "
 
-html {background: #89a0ad}
+html {
+  background: #89a0ad;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+body{
+  background: #89a0ad
+}
+
+*:before, *:after{
+  content: none !important
+}
 
 .headerdiv {
   background: #89a0ad;
 }
 
-
-@media (max-width: 955px) {
-    .navbar-header .navbar-brand {float: left; text-align: center; width: 100%}
-    .navbar-header { width:100% }
-.navbar-brand { width: 100%; text-align: center }
-
+.navbar > .container-fluid{
+  padding: 0 15px;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
 }
 
-.container-fluid {
-    padding-right: 0px;
-    padding-left: 0px;
-    margin-right: auto;
-    margin-left: auto;
+.container-fluid{
+  padding: 0px;
 }
 
-.nav
-{
-    padding-left: 15px;
-
+ /* width */
+::-webkit-scrollbar {
+  width: 10px;
 }
 
-.navbar-inverse .navbar-brand{
-  color: white
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-.navbar-brand:hover {
-    color: white;
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
 }
 
-
-@media (min-width: 956px) {
-    .navbar {width:100%}
-    .navbar .navbar-nav {float: right}
-    .navbar .navbar-header {float: left}
-    .navbar-brand { float: left; padding-left: 30px;  }
-}
-
-.content-home{
-width: 100%
-}
-
-.map-div{
-  width: 60%;
-  margin-left: 30px
-}
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+} 
 
 "
 
@@ -66,30 +63,16 @@ dimensionId <- ns("dimension")
 
 home_page <- fluidPage(
   tags$head(
-    tags$style(HTML(new_media)),
-    tags$script('
-    var dimension = [0, 0];
-    $(document).on("shiny:connected", function(e) {
-      dimension[0] = window.innerWidth;
-      dimension[1] = window.innerHeight;
-      Shiny.onInputChange("dimension", dimension);
-    });
-    $(window).resize(function(e) {
-      dimension[0] = window.innerWidth;
-      dimension[1] = window.innerHeight;
-      Shiny.onInputChange("dimension", dimension);
-    });
-  ', dimensionId)
+    tags$style(HTML(new_media))
   ),
   class="headerdiv",
   
   navbarPage(
     inverse = T,
     title = "SME0808",
-    tabPanel(title = "Analise da Serie Temporal", home_content),
-    tabPanel(title = "Tabela", table_page),
-    tabPanel(title = "Sobre", about_page),
-    tags$style(HTML(new_media))
+    tabPanel(title = "Exploração visual", plots_page),
+    tabPanel(title = "Modelos preditivos", models_page),
+    tabPanel(title = "Integrantes", about_page)
   ),
   
 )
