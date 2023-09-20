@@ -1,7 +1,7 @@
 library(shiny)
 library(bslib)
 
-table_page <- div(
+models_page <- div(
 "WIP"
 
 )
