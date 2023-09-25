@@ -116,196 +116,187 @@ box-shadow: 4px 6px #888888;
 "
 
 about_page <- div(tags$head(tags$style(HTML(css_content))),
-                  
+
                   titlePanel(
                     div(
-                      h1("Sobre", align = "center", style = 'color:black'),
+                      h1("Sobre", align = "center", style = "color:black"),
                       tags$br(),
                       tags$br(),
                       div(
-                        class = 'texto',
+                        class = "texto",
                         tags$h5(
                           "Projeto desenvolvido como avaliação para a disciplina SME0808 - Séries Temporais e Aprendizado Dinâmico.
           ",
                           align = "center",
-                          style = 'color:black'
+                          style = "color:black"
                         ),
-                        align = 'center'
+                        align = "center"
                       ),
-                      
-             
                       tags$br(),
                       tags$br(),
                       tags$br(),
                     )
-                    
                   ),
-                  
                   fluidRow(
                     column(2, align = "center", offset = 2,
                            div(
-                             class = '',
+                             class = "",
                              div(
-                               class = 'our-team',
-                               div(class = 'picture',
-                                   icon('user-circle', "fa-8x")),
+                               class = "our-team",
+                               div(class = "picture",
+                                   icon("user-circle", "fa-8x")),
                                div(
                                  class = "team-content",
-                                 h3(class = 'name', "Aluno 1"),
-                                 h4(class = 'title', "Estatistica e Ciencia de Dados  - ICMC USP")
+                                 h3(class = "name", "Aluno 1"),
+                                 h4(class = "title", "Estatistica e Ciencia de Dados  - ICMC USP")
                                ),
-                               tags$ul(class = 'social',
+                               tags$ul(class = "social",
                                        tags$li(
-                                         tags$a(href = "...", icon('linkedin'))
+                                         tags$a(href = "...", icon("linkedin"))
                                        ),
                                        tags$li(
-                                         tags$a(href = "...", icon('github'))
+                                         tags$a(href = "...", icon("github"))
                                        ),)
                              )
                            )),
                      column(2, align = "center", offset = 1,
                            div(
-                             class = '',
+                             class = "",
                              div(
-                               class = 'our-team',
-                               div(class = 'picture',
-                                   icon('user-circle', "fa-8x")),
+                               class = "our-team",
+                               div(class = "picture",
+                                   icon("user-circle", "fa-8x")),
                                div(
                                  class = "team-content",
-                                 h3(class = 'name', "Aluno 1"),
-                                 h4(class = 'title', "Estatistica e Ciencia de Dados  - ICMC USP")
+                                 h3(class = "name", "Aluno 1"),
+                                 h4(class = "title", "Estatistica e Ciencia de Dados  - ICMC USP")
                                ),
-                               tags$ul(class = 'social',
+                               tags$ul(class = "social",
                                        tags$li(
-                                         tags$a(href = "...", icon('linkedin'))
+                                         tags$a(href = "...", icon("linkedin"))
                                        ),
                                        tags$li(
-                                         tags$a(href = "...", icon('github'))
+                                         tags$a(href = "...", icon("github"))
                                        ),)
                              )
                            )),
 
                            column(2, align = "center", offset = 1,
                            div(
-                             class = '',
+                             class = "",
                              div(
-                               class = 'our-team',
-                               div(class = 'picture',
-                                   icon('user-circle', "fa-8x")),
+                               class = "our-team",
+                               div(class = "picture",
+                                   icon("user-circle", "fa-8x")),
                                div(
                                  class = "team-content",
-                                 h3(class = 'name', "Aluno 1"),
-                                 h4(class = 'title', "Estatistica e Ciencia de Dados  - ICMC USP")
+                                 h3(class = "name", "Aluno 1"),
+                                 h4(class = "title", "Estatistica e Ciencia de Dados  - ICMC USP")
                                ),
-                               tags$ul(class = 'social',
+                               tags$ul(class = "social",
                                        tags$li(
-                                         tags$a(href = "...", icon('linkedin'))
+                                         tags$a(href = "...", icon("linkedin"))
                                        ),
                                        tags$li(
-                                         tags$a(href = "...", icon('github'))
+                                         tags$a(href = "...", icon("github"))
                                        ),)
                              )
                            ))
-
-                           
                   ),
 
                   fluidRow(
                     column(2, align = "center", offset = 2,
                            div(
-                             class = '',
+                             class = "",
                              div(
-                               class = 'our-team',
-                               div(class = 'picture',
-                                   icon('user-circle', "fa-8x")),
+                               class = "our-team",
+                               div(class = "picture",
+                                   icon("user-circle", "fa-8x")),
                                div(
                                  class = "team-content",
-                                 h3(class = 'name', "Aluno 1"),
-                                 h4(class = 'title', "Estatistica e Ciencia de Dados  - ICMC USP")
+                                 h3(class = "name", "Aluno 1"),
+                                 h4(class = "title", "Estatistica e Ciencia de Dados  - ICMC USP")
                                ),
-                               tags$ul(class = 'social',
+                               tags$ul(class = "social",
                                        tags$li(
-                                         tags$a(href = "...", icon('linkedin'))
+                                         tags$a(href = "...", icon("linkedin"))
                                        ),
                                        tags$li(
-                                         tags$a(href = "...", icon('github'))
+                                         tags$a(href = "...", icon("github"))
                                        ),)
                              )
                            )),
                      column(2, align = "center", offset = 1,
                            div(
-                             class = '',
+                             class = "",
                              div(
-                               class = 'our-team',
-                               div(class = 'picture',
-                                   icon('user-circle', "fa-8x")),
+                               class = "our-team",
+                               div(class = "picture",
+                                   icon("user-circle", "fa-8x")),
                                div(
                                  class = "team-content",
-                                 h3(class = 'name', "Aluno 1"),
-                                 h4(class = 'title', "Estatistica e Ciencia de Dados  - ICMC USP")
+                                 h3(class = "name", "Aluno 1"),
+                                 h4(class = "title", "Estatistica e Ciencia de Dados  - ICMC USP")
                                ),
-                               tags$ul(class = 'social',
+                               tags$ul(class = "social",
                                        tags$li(
-                                         tags$a(href = "...", icon('linkedin'))
+                                         tags$a(href = "...", icon("linkedin"))
                                        ),
                                        tags$li(
-                                         tags$a(href = "...", icon('github'))
+                                         tags$a(href = "...", icon("github"))
                                        ),)
                              )
                            )),
 
                            column(2, align = "center", offset = 1,
                            div(
-                             class = '',
+                             class = "",
                              div(
-                               class = 'our-team',
-                               div(class = 'picture',
-                                   icon('user-circle', "fa-8x")),
+                               class = "our-team",
+                               div(class = "picture",
+                                   icon("user-circle", "fa-8x")),
                                div(
                                  class = "team-content",
-                                 h3(class = 'name', "Aluno 1"),
-                                 h4(class = 'title', "Estatistica e Ciencia de Dados  - ICMC USP")
+                                 h3(class = "name", "Aluno 1"),
+                                 h4(class = "title", "Estatistica e Ciencia de Dados  - ICMC USP")
                                ),
-                               tags$ul(class = 'social',
+                               tags$ul(class = "social",
                                        tags$li(
-                                         tags$a(href = "...", icon('linkedin'))
+                                         tags$a(href = "...", icon("linkedin"))
                                        ),
                                        tags$li(
-                                         tags$a(href = "...", icon('github'))
+                                         tags$a(href = "...", icon("github"))
                                        ),)
                              )
                            ))
-
-                           
                   ),
-
                   fluidRow(
                     column(2, align = "center", offset = 2,
                            div(
-                             class = '',
+                             class = "",
                              div(
-                               class = 'our-team',
-                               div(class = 'picture',
-                                   icon('user-circle', "fa-8x")),
+                               class = "our-team",
+                               div(class = "picture",
+                                   icon("user-circle", "fa-8x")),
                                div(
                                  class = "team-content",
-                                 h3(class = 'name', "Aluno 1"),
-                                 h4(class = 'title', "Estatistica e Ciencia de Dados  - ICMC USP")
+                                 h3(class = "name", "Aluno 1"),
+                                 h4(class = "title", "Estatistica e Ciencia de Dados  - ICMC USP")
                                ),
-                               tags$ul(class = 'social',
+                               tags$ul(class = "social",
                                        tags$li(
-                                         tags$a(href = "...", icon('linkedin'))
+                                         tags$a(href = "...", icon("linkedin"))
                                        ),
                                        tags$li(
-                                         tags$a(href = "...", icon('github'))
+                                         tags$a(href = "...", icon("github"))
                                        ),)
                              )
                            ))
 
-                           
+
                   ),
 
-                 
-                  
-                  
+
+
+
                   )

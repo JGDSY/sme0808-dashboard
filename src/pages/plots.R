@@ -72,32 +72,32 @@ coluna1 <- div(
     tags$head(tags$style(HTML(new_media_content))),
     class = "column_controls",
     div(
-        class="tools_group_top",
+        class = "tools_group_top",
          h3("Filtros"),
 
     ),
     div(
-        class="tools_group_simple",
+        class = "tools_group_simple",
         selectInput(
-        'tipo',
-        'Selecione o Tipo da Analise',
+        "tipo",
+        "Selecione o Tipo da Analise",
         c("Notificações de SRAG", "Vacinação (Covid-19)"),
 
     ),
     ),
     div(
-        class="tools_group_simple",
+        class = "tools_group_simple",
         div(
-                class='sidebar_topdiv2'
+                class = "sidebar_topdiv2"
             ),
             pickerInput(
-            'estado',
-            'Selecione o Estado',
-            c("AM","ES","SP","RS","PR","PE","MA","CE","MG","RJ","DF","BA","TO","SC","RO",
-"PA","MT","PI","GO","MS","PB","RN","SE","AL","RR","AP","AC"), multiple = TRUE,
-            selected= c("SP"),
+            "estado",
+            "Selecione o Estado",
+            c("AM", "ES", "SP", "RS", "PR", "PE", "MA", "CE", "MG", "RJ", "DF", "BA", "TO", "SC", "RO",
+"PA", "MT", "PI", "GO", "MS", "PB", "RN", "SE", "AL", "RR", "AP", "AC"), multiple = TRUE,
+            selected = c("SP"),
             options = pickerOptions(
-            actionsBox = TRUE, 
+            actionsBox = TRUE,
             size = 10,
             selectedTextFormat = "count > 3"
         ),
@@ -108,21 +108,21 @@ coluna1 <- div(
         ),
     ),
     div(
-        class="tools_group_simple",
+        class = "tools_group_simple",
         div(
-            class='sidebar_topdiv2'
+            class = "sidebar_topdiv2"
         ),
         sliderTextInput(
-        inputId = "yearinterval", 
-        label = "Intervalo de Ano:", 
-        grid = TRUE, 
+        inputId = "yearinterval",
+        label = "Intervalo de Ano:",
+        grid = TRUE,
         force_edges = TRUE,
         choices = c(
             "2019", "2020",
             "2021", "2022", "2023"
         ),
         selected = c(
-            "2019",  "2023"
+            "2019", "2023"
         ),
     )
     )
@@ -130,22 +130,22 @@ coluna1 <- div(
 
 coluna2 <- div(
     tags$head(tags$style(HTML(new_media_content))),
-    class='column_plots',
+    class = "column_plots",
     div(
-        class='timeseries',
-        plotlyOutput("timeseries_statistics", width = '90%')
+        class = "timeseries",
+        plotlyOutput("timeseries_statistics", width = "90%")
     ),
     div(
-        class='map',
+        class = "map",
        leafletOutput("map")
     )
 )
 
 plots_page <- div(
   tags$head(tags$style(HTML(new_media_content))),
-  class = 'body_ui',
+  class = "body_ui",
   div(
-    class='column_empty'
+    class = "column_empty"
   ),
   coluna1,
   coluna2
