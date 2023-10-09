@@ -6,6 +6,11 @@ library(dplyr)
 library(data.table)
 library(stringr)
 library(bslib)
+library(fpp3)
+library(patchwork)
+library(tidyverse)
+library(zoo)
+
 
 Sys.setlocale("LC_ALL", "pt_PT.UTF-8")
 
@@ -14,6 +19,8 @@ source("./src/components/route.R")
 source("./src/server/seasonal_plot.R")
 source("./src/server/cards_plot.R")
 source("./src/server/frequency_plot.R")
+source("./src/server/subseries_plot.R")
+source("./src/server/transformation_plot.R")
 source("./src/server/map.R")
 
 
@@ -21,41 +28,58 @@ ui <- bootstrapPage(div(router$ui))
 
 print("Starting data loading and processing")
 
-df <- fread("./data/2019_2020_SRAG_v2_processed.csv")
+df <- fread("./data/srag_2012_2019_2_processed.csv")
+# mapa  <- readOGR("./resources/", "BR_UF_2022", stringsAsFactors=FALSE, encoding="UTF-8")
 
 # df$value <- 1
-# df$data_referencia =as.Date(df$DT_NOTIFIC,'%d/%m/%Y')
 # df$DT_NOTIFIC <- as.Date(df$DT_NOTIFIC, "%d/%m/%Y")
-# df$ano = as.numeric(format(df$data_referencia,'%Y'))
+# df$ano = as.numeric(format(df$DT_NOTIFIC,'%Y'))
 # df$NU_IDADE_N = as.numeric(df$NU_IDADE_N)
-# df$mes = as.numeric(format(df$data_referencia,'%m'))
-# df$dia = as.numeric(format(df$data_referencia,'%d'))
-# df$dia_ano = as.numeric(df$data_referencia - as.Date(paste0(df$ano -1,'-','12','-','31')))
-# df$dia_semana = weekdays(df$data_referencia,abbreviate = T)
+# df$mes = as.numeric(format(df$DT_NOTIFIC,'%m'))
+# df$dia = as.numeric(format(df$DT_NOTIFIC,'%d'))
+# df$dia_ano = as.numeric(df$DT_NOTIFIC - as.Date(paste0(df$ano -1,'-','12','-','31')))
+# df$dia_semana = weekdays(df$DT_NOTIFIC,abbreviate = T)
 # df$dia_semana_num = NA
 # ordem_dia_semana = c( "seg","ter","qua","qui","sex", "sáb", "dom")
 # df[, dia_semana_num := match(dia_semana, ordem_dia_semana)]
 # df$semana_ano = as.numeric(ceiling(df$dia_ano/7))
 # df$ano_mes <- format(as.Date(df$DT_NOTIFIC), "%Y-%m")
 # df$week_ano <- format(as.Date(paste(df$ano, df$semana_ano, 1, sep="-"), "%Y-%U-%u"))
-# df$RACA_UF <- paste0(df$CS_RACA,"-",df$SG_UF)
+df$obito <- (df$EVOLUCAO == 2)
 
-etinia_map = c(
+df$ano <- as.numeric(df$ano)
+
+
+etinia_map <- c(
     "Branca" = 1, "Preta" = 2, "Amarela" = 3,
     "Parda" = 4, "Indigena" = 5, "Não Especificado" = 9
+)
+sintomas_map <- c(
+    "Febre" = "FEBRE", "Tosse" = "TOSSE",
+    "Dor de Garganta" = "GARGANTA",
+    "Dispneia" = "DISPNEIA",
+    "Desconforto Respiratorio" = "DESC_RESP",
+    "Saturação Baixa" = "SATURACAO",
+    "Outros" = "OUTRO_SIN"
 )
 
 
 gc()
 
-
-df_df <- df
-class(df_df) <- class(as.data.frame(df_df))
+print(head(df))
 
 
-df_agg_dia <- aggregate(df_df["value"], by=df_df["DT_NOTIFIC"], sum)
+df_agg_dia <- df[, sum(value), by = DT_NOTIFIC][order(DT_NOTIFIC)]
+df_agg_obito <- df[, sum(obito), by = DT_NOTIFIC][order(DT_NOTIFIC)]
+df_agg_obito <- na.omit(df_agg_obito)
+df_agg_internacao <- df[, sum(HOSPITAL), by = DT_NOTIFIC][order(DT_NOTIFIC)]
+df_agg_uti <- df[, sum(UTI), by = DT_NOTIFIC][order(DT_NOTIFIC)]
 
 
+print(head(df_agg_dia))
+print(head(df_agg_obito))
+
+# write.csv(df, "srag_2012_2023_2_processed.csv")
 
 
 print("Ending data loading and processing")
@@ -63,62 +87,64 @@ print("Ending data loading and processing")
 
 server <- function(input, output, session) {
 
+    output$acc_srag <- renderText({
+        return(sum(df_agg_dia$V1))
+    })
+
+    output$acc_uti <- renderText({
+        return(sum(df_agg_uti$V1))
+    })
+
+    output$acc_internacao <- renderText({
+        return(sum(df_agg_internacao$V1))
+    })
+
+    output$acc_obito <- renderText({
+        return(sum(df_agg_obito$V1))
+    })
+
+    output$mean_srag <- renderText({
+        return(round(sum(df_agg_dia$V1)/length(df_agg_dia$V1), 1))
+    })
+
+    output$mean_uti <- renderText({
+        return(round(sum(df_agg_uti$V1)/length(df_agg_dia$V1), 1))
+    })
+
+    output$mean_internacao <- renderText({
+        return(round(sum(df_agg_internacao$V1)/length(df_agg_dia$V1), 1))
+    })
+
+    output$mean_obito <- renderText({
+        return(round(sum(df_agg_obito$V1)/length(df_agg_dia$V1), 1))
+    })
+
     etinias_input <- reactive({
         return(input$ethnicity_type_input)
     })
+
+    clicklist <- reactiveValues(ids = c(
+        "SP", "RJ", "MG", "ES", "SC", "RS", "PR",
+        "DF"
+    ))
     
-
-    df_df_filtered <- reactive({
-
-        mes_selecionados <- c()
-        for (i in input$seasonal_window_months_filter_input){
-            mes_selecionados <- c(mes_selecionados, map_month[i])
-        }
-
-        semana_selecionados <- c()
-        for (i in input$seasonal_window_yearweek_filter_input){
-            semana_selecionados <- c(semana_selecionados, strtoi(i))
-        }
-        dia_semana_selecionados <- c()
-        for (i in input$seasonal_window_weekday_filter_input){
-            dia_semana_selecionados <- c(dia_semana_selecionados, map_day[i])
-        }
-
-        age_window <- c(input$age_window_filter_input[1]:input$age_window_filter_input[2])
-        year_window <- input$seasonal_window_year_filter_input
-        df_aux <- filter(df_df, CS_RACA %in% input$ethnicity_type_input)
-        df_aux <- filter(df_aux, NU_IDADE_N %in% age_window)
-        df_aux <- filter(df_aux, ano %in% year_window)
-        df_aux <- filter(df_aux, mes %in% mes_selecionados)
-        df_aux <- filter(df_aux, dia_semana %in% dia_semana_selecionados)
-        df_aux <- filter(df_aux, semana_ano %in% semana_selecionados)
-
-        return(df_aux)
-    })
-
     df_filtered <- reactive({
-        mes_selecionados <- c()
-        for (i in input$seasonal_window_months_filter_input){
-            mes_selecionados <- c(mes_selecionados, map_month[i])
-        }
 
-        semana_selecionados <- c()
-        for (i in input$seasonal_window_yearweek_filter_input){
-            semana_selecionados <- c(semana_selecionados, strtoi(i))
-        }
-        dia_semana_selecionados <- c()
-        for (i in input$seasonal_window_weekday_filter_input){
-            dia_semana_selecionados <- c(dia_semana_selecionados, map_day[i])
-        }
+
 
         age_window <- c(input$age_window_filter_input[1]:input$age_window_filter_input[2])
-        year_window <- input$seasonal_window_year_filter_input
-        df_aux <- filter(df, CS_RACA %in% input$ethnicity_type_input)
+        year_window <- c(input$year_filter_input[1]: input$year_filter_input[2])
+
+        df_aux <- filter(df, ano %in% year_window)
+        df_aux <- filter(df_aux, CS_RACA %in% input$ethnicity_type_input)
         df_aux <- filter(df_aux, NU_IDADE_N %in% age_window)
-        df_aux <- filter(df_aux, ano %in% year_window)
-        df_aux <- filter(df_aux, mes %in% mes_selecionados)
-        df_aux <- filter(df_aux, dia_semana %in% dia_semana_selecionados)
-        df_aux <- filter(df_aux, semana_ano %in% semana_selecionados)
+        df_aux <- filter(df_aux, SG_UF %in% input$state_filter_input)
+
+        for (i in input$sickness_filter_input){
+            col_name <- sintomas_map[i]
+            df_aux <- filter(df_aux, get(col_name) %in% c(1))
+        }
+
         return(df_aux)
     })
 
@@ -128,22 +154,91 @@ server <- function(input, output, session) {
         render_srag_notification_card_plot(df_agg_dia)
     })
 
+    output$mini_obito_plot <- renderPlot({
+        render_srag_notification_card_plot(df_agg_obito)
+    })
+
+    output$mini_uti_plot <- renderPlot({
+        render_srag_notification_card_plot(df_agg_uti)
+    })
+
+    output$mini_internacao_plot <- renderPlot({
+        render_srag_notification_card_plot(df_agg_internacao)
+    })
+
     output$seasonal_plot <- renderPlotly({
         render_seasonal_plot(output, input, df_filtered())
     })
 
     output$frequency_plot <- renderPlotly({
-        render_frequency_plot(output, input, df_df_filtered())
+        render_frequency_plot(output, input, df_filtered())
     })
 
-    output$map <- renderLeaflet({
-        render_map(output, input)
+    output$subseries_plot <- renderPlotly({
+        render_subseries_plot(output, input, df_filtered())
     })
 
-    observeEvent(input$map_shape_click, {
-        p <- input$map_shape_click
-        print(p)
+    output$transformation_plot <- renderPlotly({
+        render_transformation_plot(output, input, df_filtered())
     })
+
+    output$transformation_plot2 <- renderPlotly({
+        render_transformation_plot2(output, input, df_filtered())
+    })
+
+    # output$map <- renderLeaflet({
+    #     render_map(output, input, mapa)
+    # })
+
+  
+
+    # observeEvent(input$map_shape_click, {
+        
+    #     print(clicklist$ids)
+
+    #     proxy <- leafletProxy("map")
+    #     p <- input$map_shape_click
+    #     if (length(p) != 0){
+    #          if (p$id %in% clicklist$ids){
+                
+    #             clicklist$ids <- clicklist$ids[clicklist$ids != p$id]
+    #             tryCatch(
+    #                 expr={
+    #                     proxy %>% removeShape(layerId = paste(p$id, "_high", sep=""))
+    #                     }
+    #             )
+    #         }else{
+    #             clicklist$ids <- c(clicklist$ids, p$id)
+    #             sel_lines <- mapa[mapa$SIGLA_UF %in% c(p$id),]
+    #             sel_lines$SIGLA_UF <- paste(sel_lines$SIGLA_UF, "_high", sep="")
+
+    #             tryCatch(
+    #                 expr={
+    #                     proxy %>% addPolylines(data = sel_lines, smoothFactor = 1,
+    #                                         layerId = as.character(sel_lines$SIGLA_UF),
+    #                                         color="red", weight=1,opacity=1, 
+    #                                         highlightOptions = highlightOptions(color = "green",
+    #                                                                         weight = 5, bringToFront = F, opacity = 1))
+    #                 }
+    #             )
+                
+    #         }
+    #     }else{
+    #         sel_lines <- mapa[mapa$SIGLA_UF %in% clicklist$ids,]
+
+    #         sel_lines$SIGLA_UF <- paste(sel_lines$SIGLA_UF, "_high", sep="")
+            
+    #         proxy %>% addPolylines(data = sel_lines, smoothFactor = 1,
+    #                             layerId = as.character(sel_lines$SIGLA_UF),
+    #                             color="red", weight=1,opacity=1, 
+    #                             highlightOptions = highlightOptions(color = "green",
+    #                                                              weight = 5, bringToFront = F, opacity = 1))
+    #     }
+       
+
+        
+
+    # },ignoreInit = FALSE, ignoreNULL = FALSE)
 
 
   router$server(input, output, session)

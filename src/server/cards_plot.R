@@ -1,6 +1,6 @@
 
 render_srag_notification_card_plot <- function(df_agg){
-    fig <- ggplot(df_agg, aes(x = df_agg$DT_NOTIFIC, y = cumsum(df_agg$value))) +
+    fig <- ggplot(df_agg, aes(x = df_agg$DT_NOTIFIC, y = cumsum(df_agg$V1))) +
         geom_smooth(method = "lm", formula = y ~ poly(x, 15), se = FALSE)
 
         fig <- fig + theme(legend.position = "none",

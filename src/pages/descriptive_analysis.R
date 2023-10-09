@@ -24,7 +24,7 @@ css <- "
 .card_columns {
   display: grid;
   grid-column-gap: 20px;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   padding-left: 40px;
   padding-right: 40px;
 }
@@ -118,6 +118,18 @@ css <- "
     box-shadow: rgba(100, 100, 111, 0.3) 0px 5px 23px 0px;
 }
 
+.space {
+    padding-top: 30px;
+}
+
+.custom_filters {
+    display: grid;
+    padding-left: 40px;
+    padding-right: 40px;
+    grid-column-gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+}
+
 "
 
 descriptive_analysis_page <- div(
@@ -131,11 +143,11 @@ descriptive_analysis_page <- div(
     ),
     div(
         class="card_columns",
-        card_data("Notificaçoes de SRAG", "10.300", "Acumulado", "2.340", "Media por Dia", "mini_srag_plot"),
-        card_data("Notificaçoes de Covid-19", "NA", "Acumulado", "NA", "Media por Dia", "mini_covid_plot"),
-        card_data("Notificaçoes de Obito", "NA", "Acumulado", "NA", "Media por Dia", "mini_death_plot"),
-        card_data("Vacinação", "NA", "Acumulado", "NA", "Media por Dia", "mini_vaci_plot"),
-        card_data("Testes Realizados", "NA", "Acumulado", "NA", "Media por Dia", "mini_test_plot"),
+        card_data("Notificaçoes de SRAG", textOutput("acc_srag"), "Acumulado", textOutput("mean_srag"), "Media por Dia", "mini_srag_plot"),
+        card_data("Hospitalização", textOutput("acc_internacao"), "Acumulado", textOutput("mean_internacao"), "Media por Dia", "mini_internacao_plot"),
+        card_data("Internações em UTI", textOutput("acc_uti"), "Acumulado", textOutput("mean_uti"), "Media por Dia", "mini_uti_plot"),
+        card_data("Notificaçoes de Obito", textOutput("acc_obito"), "Acumulado", textOutput("mean_obito"), "Media por Dia", "mini_obito_plot"),
+
     ),
     div(
         class="analysis_title",
@@ -149,19 +161,15 @@ descriptive_analysis_page <- div(
         map_filter
     ),
     div(
-        class="frequency_plots",
-        frequency_plot_div
+        class="tabs_plot",
+        tabsetPanel(
+            type="tabs",
+            tabPanel("Serie Temporal", frequency_plot_div),
+            tabPanel("Sazonalidade", seasonal_plot_div),
+            tabPanel("Subseries", subseries_plot_div),
+            tabPanel("Defasagem", lag_plot_div),
+            tabPanel("Transformação de Box-Cox", transformation_plot_div)
+        )
     ),
-    div(
-        class="seasonal_plots",
-        seasonal_plot_div
-    ),
-    div(
-        class="subseries_plots",
-        subseries_plot_div
-    ),
-    div(
-        class="lag_plots",
-        lag_plot_div
-    )
+
 )

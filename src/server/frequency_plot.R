@@ -1,33 +1,71 @@
 
+
+switch_transformations_individual <- function(df_ts, input, x_name){
+
+    if (input$frequency_average_type_input == "Média Movel"){
+        df_ts <- df_ts[order(-get(x_name))]
+        df_ts[, V3 := frollmean(V1, input$frequency_moving_average_window_input)]
+        df_ts <- df_ts[order(-get(x_name))]
+        fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
+        add_trace(x = ~get(x_name), y = ~V3, name = "Notificações")
+    }else if (input$frequency_average_type_input == "Diferenciação"){
+        get(x_name)=df_ts$get(x_name)[1:(length(df_ts$get(x_name))-input$frequency_differentiation_order_input)]
+        V3=diff(df_ts$V1, lag=input$frequency_differentiation_order_input)
+        df_ts <- data.table(get(x_name), V3)[order(-get(x_name))]
+        fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
+        add_trace(x = ~get(x_name), y = ~V3, name = "Notificações")
+    }else {
+        fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
+        add_trace(x = ~get(x_name), y = ~V1, name = "Notificações")
+    }
+    return(fig)
+
+}
+
+switch_transformations_grouped <- function(df_ts, input, x_name, group_name){
+
+    if (input$frequency_average_type_input == "Média Movel"){
+        df_ts <- df_ts[order(-get(x_name))]
+        df_ts[, V3 := frollmean(V1, input$frequency_moving_average_window_input), by=list(get(group_name))]
+        df_ts <- df_ts[order(-get(x_name))]
+        fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
+        add_trace(x = ~get(x_name), y = ~V3, name = ~get(group_name), color=~get(group_name))
+    }else if (input$frequency_average_type_input == "Diferenciação"){
+        df_ts <- df_ts[order(-get(x_name))]
+        df_ts[, V3 := rollapplyr(V1, input$frequency_differentiation_order_input+1, function(x){diff(x, lag=input$frequency_differentiation_order_input)}, na.pad=TRUE), by=get(group_name)]
+        df_ts <- na.omit(df_ts)
+        df_ts <- df_ts[order(-get(x_name))]
+        fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
+        add_trace(x = ~get(x_name), y = ~V3, name = ~get(group_name), color=~get(group_name))
+    }else {
+        fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
+        add_trace(x = ~get(x_name), y = ~V1, name = ~get(group_name), color=~get(group_name))
+    }
+    return(fig)
+
+}
+
+
 render_frequency_plot <- function(output, input, df){
     input_value = input$frequency_type_input
 
-    df_aux <- df
-
+    type_ <- input$ethnicity_type_filter_input
     
 
     if (input_value == "Dia"){
         xaxis = "Dias"
 
-        type_ <- input$ethnicity_type_filter_input
+        
 
         if (type_ == "Agrupada"){
-            df_ts <- aggregate(df_aux["value"], by = df_aux["DT_NOTIFIC"], sum)
-            fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
-            add_trace(x = ~DT_NOTIFIC, y = ~value, name = "Notificações")
-        }
-        else if (type_ == "Individual por Estado"){
-            df_ts <- aggregate(df_aux["value"], by = c(df_aux["DT_NOTIFIC"], df_aux["SG_UF"]), sum)
-            fig <- plot_ly(
-                df_ts, type = "scatter", mode = "lines"
-            ) %>%
-             add_trace(x = ~DT_NOTIFIC, y = ~value, name = ~SG_UF, color = ~SG_UF)
+            df_ts <- df[, sum(value), by = DT_NOTIFIC][order(-DT_NOTIFIC)]
+            fig <- switch_transformations_individual(df_ts, input, "DT_NOTIFIC")
+        }else if (type_ == "Individual por Estado"){
+            df_ts <- df[, sum(value), by = list(DT_NOTIFIC, SG_UF)][order(-DT_NOTIFIC)]
+            fig <- switch_transformations_grouped(df_ts, input, "DT_NOTIFIC", "SG_UF")
         }else if(type_ == "Individual por Cor/Raça/Etnia"){
-            df_ts <- aggregate(df_aux["value"], by = c(df_aux["DT_NOTIFIC"], df_aux["CS_RACA"]), sum)
-            fig <- plot_ly(
-                df_ts, type = "scatter", mode = "lines"
-            ) %>%
-             add_trace(x = ~DT_NOTIFIC, y = ~value, name = ~CS_RACA, color = ~CS_RACA)
+            df_ts <- df[, sum(value), by = c(DT_NOTIFIC, CS_RACA)][order(-DT_NOTIFIC)]
+            fig <- switch_transformations_grouped(df_ts, input, "DT_NOTIFIC", "CS_RACA")
         }
         
 
@@ -37,26 +75,19 @@ render_frequency_plot <- function(output, input, df){
         ethnicity <- input$ethnicity_type_filter_input
         uf <- input$ethnicity_type_filter_input
 
-        if (ethnicity == "Agrupada" & uf == "Agrupada"){
-            df_ts <- aggregate(df_aux["value"], by = df_aux["week_ano"], sum)
-            fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
-            add_trace(x = ~week_ano, y = ~value, name = "Notificações")
+        
+
+        if (type_ == "Agrupada"){
+            df_ts <- df[, sum(value), by = week_ano][order(-week_ano)]
+            fig <- switch_transformations_individual(df_ts, input, "week_ano")
         }
-        else if (ethnicity == "Agrupada" & uf == "Individual"){
-            df_ts <- aggregate(df_aux["value"], by = c(df_aux["week_ano"], df_aux["SG_UF"]), sum)
-            print(head(df_ts))
-            fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
-            add_trace(x = ~week_ano, y = ~value, color = ~SG_UF)
-        }else if(ethnicity == "Individual" & uf == "Agrupada"){
-            df_ts <- aggregate(df_aux["value"], by = c(df_aux["week_ano"], df_aux["CS_RACA"]), sum)
-            print(head(df_ts))
-            fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
-            add_trace(x = ~week_ano, y = ~value, color = ~CS_RACA)
-        }else{
-            df_ts <- aggregate(df_aux["value"], by = c(df_aux["week_ano"], df_aux["RACA_UF"]), sum)
-            print(head(df_ts))
-            fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
-            add_trace(x = ~week_ano, y = ~value, color = ~RACA_UF)
+        else if (type_ == "Individual por Estado"){
+            df_ts <- df[, sum(value), by = list(week_ano, SG_UF)][order(-week_ano)]
+            fig <- switch_transformations_grouped(df_ts, input, "week_ano", "SG_UF")
+
+        }else if(type_ == "Individual por Cor/Raça/Etnia"){
+            df_ts <- df[, sum(value), by = list(week_ano, CS_RACA)][order(-week_ano)]
+            fig <- switch_transformations_grouped(df_ts, input, "week_ano", "CS_RACA")
         }
         
 
@@ -68,27 +99,20 @@ render_frequency_plot <- function(output, input, df){
         ethnicity <- input$ethnicity_type_filter_input
         uf <- input$ethnicity_type_filter_input
 
-        if (ethnicity == "Agrupada" & uf == "Agrupada"){
-            df_ts <- aggregate(df_aux["value"], by = df_aux["ano_mes"], sum)
-            fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
-            add_trace(x = ~ano_mes, y = ~value, name = "Notificações")
+
+        if (type_ == "Agrupada"){
+            df_ts <- df[, sum(value), by = ano_mes][order(-ano_mes)]
+            fig <- switch_transformations_individual(df_ts, input, "week_ano")
             
         }
-        else if (ethnicity == "Agrupada" & uf == "Individual"){
-            df_ts <- aggregate(df_aux["value"], by = c(df_aux["ano_mes"], df_aux["SG_UF"]), sum)
-            fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
-            add_trace(x = ~ano_mes, y = ~value, color = ~SG_UF)
+        else if (type_ == "Individual por Estado"){
+            df_ts <- df[, sum(value), by = list(ano_mes, SG_UF)][order(-ano_mes)]
+            fig <- switch_transformations_grouped(df_ts, input, "ano_mes", "SG_UF")
             
-        }else if(ethnicity == "Individual" & uf == "Agrupada"){
-            df_ts <- aggregate(df_aux["value"], by = c(df_aux["ano_mes"], df_aux["CS_RACA"]), sum)
-            fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
-            add_trace(x = ~ano_mes, y = ~value, color = ~CS_RACA)
+        }else if(type_ == "Individual por Cor/Raça/Etnia"){
+            df_ts <- df[, sum(value), by = list(ano_mes, CS_RACA)][order(-ano_mes)]
+            fig <- switch_transformations_grouped(df_ts, input, "ano_mes", "CS_RACA")
            
-        }else{
-            df_ts <- aggregate(df_aux["value"], by = c(df_aux["ano_mes"], df_aux["RACA_UF"]), sum)
-            fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
-            add_trace(x = ~ano_mes, y = ~value, color = ~RACA_UF)
-            
         }
         
     }
