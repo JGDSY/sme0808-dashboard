@@ -357,6 +357,31 @@ frequency_differentiation_order <- div(
     )
 )
 
+lag_type_filter <- div(
+    class="filter_set",
+    div(
+        class="filter_text",
+        "Frequencia da Defasagem:"
+    ),
+    div(
+        class="filter_selection",
+        pickerInput(
+            inputId="lag_input",
+            label="",
+            choices=c("Diario", "Mensal"),
+            multiple=FALSE,
+            selected=c("Diario"),
+            options = pickerOptions(
+                actionsBox = TRUE,
+                size = 10,
+                selectedTextFormat = "count > 3",
+                showTick=TRUE,
+            )
+        ),
+
+    )
+)
+
 
 
 filters1 <- div(

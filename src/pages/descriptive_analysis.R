@@ -83,6 +83,14 @@ css <- "
     padding-right: 40px;
 }
 
+.modeling_filters {
+    display: grid;
+    grid-column-gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
 .filter_text {
     font-size: 15px;
     font-family: 'Montserrat';

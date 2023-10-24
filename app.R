@@ -10,6 +10,12 @@ library(fpp3)
 library(patchwork)
 library(tidyverse)
 library(zoo)
+library(forecast)
+library(ggplot2)
+library(bsicons)
+library(tippy)
+library(shinyBS)
+library(ggpubr)
 
 
 Sys.setlocale("LC_ALL", "pt_PT.UTF-8")
@@ -21,10 +27,14 @@ source("./src/server/cards_plot.R")
 source("./src/server/frequency_plot.R")
 source("./src/server/subseries_plot.R")
 source("./src/server/transformation_plot.R")
+source("./src/server/modeling_plot.R")
+source("./src/server/lag_plot.R")
 source("./src/server/map.R")
 
 
-ui <- bootstrapPage(div(router$ui))
+ui <- bootstrapPage(
+    div(router$ui)
+)
 
 print("Starting data loading and processing")
 
@@ -185,6 +195,78 @@ server <- function(input, output, session) {
     output$transformation_plot2 <- renderPlotly({
         render_transformation_plot2(output, input, df_filtered())
     })
+
+    data_menor <- reactive({
+        get_data_menor(df)
+    })
+
+    dt <- reactive({
+        dataset_after_variance_transformation_base(output, input, df)
+    })
+
+    dt_i <- reactive({
+        dataset_after_variance_transformation2(output, input, dt(), data_menor())
+    })
+
+    dt_ts <- reactive({
+        dataset_after_variance_transformation1(output, input, dt(), data_menor())
+    })
+
+
+    output$variance_plot <- renderPlotly({
+        render_variance_plot(output, input, dt_i(), dt_ts())
+    })
+
+
+
+    dt_i_tendency <- reactive({
+        dataset_after_tendency_transformation(output, input, dt_i())
+    })
+    
+
+    output$tendency_plot <- renderPlotly({
+        render_tendency_plot(output, input, dt_i_tendency(), dt_i())
+    })
+
+    output$decomposition_plot <- renderPlotly({
+        render_decomposition_plot(output, input, dt_i_tendency())
+    })
+
+    tsdata <- reactive({
+        get_data_to_lag_plot(df)
+    })
+
+    monthly <- reactive({
+        get_data_to_lag_plot2(tsdata())
+    })
+
+    output$lag_plot <- renderPlotly({
+        if(input$lag_input == "Diario"){
+            render_lag_plot(output, input, tsdata())
+        }else{
+            render_lag_plot3(output, input, monthly())
+        }
+        
+    })
+
+    output$lag_plot2 <- renderPlotly({
+        if(input$lag_input == "Diario"){
+            render_lag_plot2(output, input, tsdata())
+        }else{
+            render_lag_plot4(output, input, monthly())
+        }   
+        
+    })
+
+    decomposed_data <- reactive({
+        get_decomposition(output, input, dt_i_tendency())
+    })
+
+    output$autocorrelation_plot <- renderPlotly({
+        render_lag_plot_diff(output, input, decomposed_data())
+    })
+
+
 
     # output$map <- renderLeaflet({
     #     render_map(output, input, mapa)

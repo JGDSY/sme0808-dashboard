@@ -4,6 +4,7 @@ library(bslib)
 source("./src/pages/about.R")
 source("./src/pages/descriptive_analysis.R")
 source("./src/pages/models.R")
+source("./src/pages/modeling.R")
 
 new_media <- "
 
@@ -124,6 +125,7 @@ home_page <- fluidPage(
     inverse = TRUE,
     title = "SME0808 - DATASUS",
     tabPanel(title = "Exploração visual", descriptive_analysis_page),
+    tabPanel(title = "Tratamento de Tendencia e Sazonalidade", modeling_page),
     tabPanel(title = "Modelos preditivos", models_page),
     tabPanel(title = "Integrantes", about_page)
   ),

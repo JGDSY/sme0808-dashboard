@@ -82,10 +82,17 @@ lag_plot_div <- div(
         "Analise da Defasagem"
     ),
     div(
+        class="custom_filters",
+        lag_type_filter,
+    ),
+    div(
         class="plot_principal",
         align = "center",
-        plotlyOutput("lag_plot", width = "90%")
+        plotlyOutput("lag_plot", width = "90%"),
+        div(class='space'),
+        plotlyOutput("lag_plot2", width = "90%"),
     ),
+    
 )
 
 
