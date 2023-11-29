@@ -223,32 +223,36 @@ modeling_page <- div(
         class="panel_title",
         "Painel de Tratamento de Tendencia e Sazonalidade "
     ),
-    div(
-        class="text_filter",
-        "Filtros Pré Modelagem"
-    ),
-    div(
-        class="text_explanation_filter",
-        bsCollapse(
-            id = "collapseExample2",
-            open = "Panel 2",
-            bsCollapsePanel(
-                "Explicação da Etapa",
-                HTML("Nessa seção você poderia filtrar quais dados serão usados para modelagem, ajuste e validação da serie temporal."),
-                HTML("<br><br>Ou seja, se você desejar modelar uma serie temporal considerando apenas os dados do estado de São Paulo, basta filtrar o estado."),
-                HTML(" Cabe destacar que os filtros aplicados nessa etapa serão levados para a etapa de modelagem preditiva e verificação de ajuste dados, portanto, escolha-os bem!"),
-                style = "info"
-            )
-        )
+    
+    
+#     div(
+#         class="text_filter",
+#         "Filtros Pré Modelagem"
+#     ),
+#     div(
+#         class="text_explanation_filter",
+#         bsCollapse(
+#             id = "collapseExample2",
+#             open = "Panel 2",
+#             bsCollapsePanel(
+#                 "Explicação da Etapa",
+#                 HTML("Nessa seção você poderia filtrar quais dados serão usados para modelagem, ajuste e validação da serie temporal."),
+#                 HTML("<br><br>Ou seja, se você desejar modelar uma serie temporal considerando apenas os dados do estado de São Paulo, basta filtrar o estado."),
+#                 HTML(" Cabe destacar que os filtros aplicados nessa etapa serão levados para a etapa de modelagem preditiva e verificação de ajuste dados, portanto, escolha-os bem!"),
+#                 style = "info"
+#             )
+#         )
+# 
+#     ),
+# 
+#     div(
+#        class="modeling_filters",
+#        filters1,
+#        filters2,
+#        filters3,
+#    ),
 
-    ),
 
-     div(
-        class="modeling_filters",
-        filters1,
-        filters2,
-        filters3,
-    ),
     div(
         class="text_filter",
         "Modelagem da Serie Temporal"

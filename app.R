@@ -321,6 +321,10 @@ server <- function(input, output, session) {
         
 
     # },ignoreInit = FALSE, ignoreNULL = FALSE)
+    
+    observeEvent(input$show_filters, {
+      showModal(filters_modal)
+    })
 
 
   router$server(input, output, session)

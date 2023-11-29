@@ -102,7 +102,7 @@ css <- "
 }
 
 .filter_set {
-    padding-bottom: 40px;
+    padding-bottom: 25px;
 }
 
 .plots_title {
@@ -161,13 +161,13 @@ descriptive_analysis_page <- div(
         class="analysis_title",
         "Analise Descritiva e Exploratoria"
     ),
-    div(
-        class="analysis_filters",
-        filters1,
-        filters2,
-        filters3,
-        map_filter
-    ),
+#    div(
+#        class="analysis_filters",
+#        filters1,
+#        filters2,
+#        filters3,
+#        map_filter
+#    ),
     div(
         class="tabs_plot",
         tabsetPanel(

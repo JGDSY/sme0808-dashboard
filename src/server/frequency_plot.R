@@ -9,9 +9,10 @@ switch_transformations_individual <- function(df_ts, input, x_name){
         fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
         add_trace(x = ~get(x_name), y = ~V3, name = "Notificações")
     }else if (input$frequency_average_type_input == "Diferenciação"){
-        get(x_name)=df_ts$get(x_name)[1:(length(df_ts$get(x_name))-input$frequency_differentiation_order_input)]
-        V3=diff(df_ts$V1, lag=input$frequency_differentiation_order_input)
-        df_ts <- data.table(get(x_name), V3)[order(-get(x_name))]
+        df_ts <- df_ts[order(-get(x_name))]
+        df_ts[, V3 := rollapplyr(V1, input$frequency_differentiation_order_input+1, function(x){diff(x, lag=input$frequency_differentiation_order_input)}, na.pad=TRUE)]
+        df_ts <- na.omit(df_ts)
+        df_ts <- df_ts[order(-get(x_name))]
         fig <- plot_ly(df_ts, type = "scatter", mode = "lines") %>%
         add_trace(x = ~get(x_name), y = ~V3, name = "Notificações")
     }else {
@@ -102,7 +103,7 @@ render_frequency_plot <- function(output, input, df){
 
         if (type_ == "Agrupada"){
             df_ts <- df[, sum(value), by = ano_mes][order(-ano_mes)]
-            fig <- switch_transformations_individual(df_ts, input, "week_ano")
+            fig <- switch_transformations_individual(df_ts, input, "ano_mes")
             
         }
         else if (type_ == "Individual por Estado"){
