@@ -288,14 +288,13 @@ modeling_page <- div(
 # 
 #     ),
 # 
-#     div(
-#        class="modeling_filters",
-#        filters1,
-#        filters2,
-#        filters3,
-#    ),
 
 
+
+    div(
+        class="text_filter",
+        "Modelagem da Serie Temporal"
+    ),
     div(
         class="text_explanation_filter",
         # div(

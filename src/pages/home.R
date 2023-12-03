@@ -62,11 +62,66 @@ modal-body{
   padding: 10px 30px;
 }
 
+
+.tab-pane {
+  padding-top: 90px;
+}
+
+.panel_title, .analysis_title{
+  padding-left: 70px;
+}
+
+#filters-nav {
+  position: fixed;
+  top: 50px;
+  color: #bababa;
+  background-color: #777;
+  padding: 0 30px 0 0;
+  transition: 0.4s;
+  width: 100%;
+  height: 30px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+
+#filters-nav > * {
+  margin: 5px 0;
+}
+
+#show_filters {
+  background: inherit;
+  color: white;
+  border-color: white;
+  padding: 0 25px;
+  margin: 1px;
+  border-radius: 1px;
+}
+
 .filters-box{
+  z-index: 1000;
+  position: fixed;
+  top:7%;
   display: flex;
   flex-flow: row wrap;
   justify-content: space-around;
-  max-width: inherit;
+  max-width: 80%;
+  left: 10%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10000px 10000px rgba(0,0,0,0.4), 0 0 0.3in 0.2in rgba(0, 0, 0, 0.2);
+  padding: 30px 15px;
+}
+
+.filters-box > *{
+  margin: 0 5px;
+}
+
+.filters-box > .filters-footer{
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: right;
 }
 
  /* width */
@@ -89,18 +144,14 @@ modal-body{
   background: #555;
 }
 
-.navbar-default {
+.navbar-default, .navbar-inverse {
     background-color: #545454 !important;
     font-size: 100%;
     font-family: Arial;
     color: black;
-}
-
-.navbar-inverse {
-    background-color: #545454 !important;
-    font-size: 100%;
-    font-family: Arial;
-    color: #FFFFFF;
+    position: fixed;
+    width: 100%;
+    transition: 0.4s;
 }
 
 .navbar-inverse .navbar-brand {
@@ -128,25 +179,64 @@ modal-body{
   color: #FFFFFF;
 
 } 
-
-#dummy-filters{
-  display:none
-}
-
-
 "
 
 js_script <- "
+window.addEventListener('load', function (event){
+  screen_sizing(event);
+  hide_modal(event);
+  $('#confirm_filters').on('click', hide_modal);
+  $('#show_filters').on('click', show_modal);
+}, true);
 
-window.addEventListener('load', screen_sizing, true);
 window.addEventListener('resize', screen_sizing, true);
 
 function screen_sizing(event) {
-  let nav_height = document.getElementsByClassName('navbar')[0].offsetHeight;
-  let filter_btn = document.getElementsByClassName('filters-btn')[0];
-  filter_btn.style.top = (nav_height - 1) + 'px';
+  let nav = $('nav.navbar');
+  $('#filters-nav').css('top', (nav.position().top + nav.height()) + 'px');
+  $('.tab-pane').css('padding-top', (nav.height() + $('#filters-nav').height()) + 'px');
 }
 
+async function show_modal(event){
+  $('.filters-box').show('fast');
+  $('#show_filters').off('click')
+  await new Promise(r => setTimeout(r, 100));
+  $(document).on('click', hide_modal_easy);
+}
+
+function hide_modal(event){
+  $('.filters-box').hide('fast');
+  $(document).off('click', hide_modal_easy);
+  $('#show_filters').on('click', show_modal);
+  
+  
+  let input_ids = ['analysis_type_input', 'year_filter_input', 'age_window_filter_input', 'ethnicity_type_input', 'state_filter_input', 'sickness_filter_input', 'ethnicity_type_filter_input1'];
+  $('#filters-nav > span').each( function(index){
+    let elem = $('#' + input_ids[index]);
+    let content = elem.val();
+    if(index >= 3 && index <= 5) { content = elem.val().length}
+    $(this).text(content);
+  })
+}
+
+function hide_modal_easy(event){
+  let $target = $(event.target);
+  if(!$target.closest('.filters-box').length && 
+  $('.filters-box').is(':visible')) {
+    $('#confirm_filters').trigger('click');
+  }
+}
+
+window.addEventListener('scroll', function (event) {
+  let nav = $('nav.navbar');
+  if (document.body.scrollTop > (nav.height() - 5) || document.documentElement.scrollTop > (nav.height() - 5)) {
+    nav.css('top', '-' + nav.height() + 'px');
+    $('#filters-nav').css('top', '0px')
+  } else {
+    nav.css('top', '0');
+    $('#filters-nav').css('top', (nav.height()) + 'px')
+  }
+}, true)
 "
 
 ns <- NS('home')
@@ -166,13 +256,26 @@ home_page <- fluidPage(
     tabPanel(title = "Modelos preditivos", models_page),
     tabPanel(title = "Integrantes", about_page),
   ),
-#filtros invisíveis para dar trigger na atualização dos dados
   div(
-    id="dummy-filters",
+    id="filters-nav",
+    actionButton("show_filters", "Filtros", class="filters-btn"),
+    span(),
+    span(),
+    span(),
+    span(),
+    span(),
+    span(),
+    span(),
+  ),
+  div(
+    class="filters-box",
     filters1,
     filters2,
     filters3,
-    map_filter
-  ),
-  actionButton("show_filters", "Dados",class="filters-btn")
+    map_filter,
+    div(
+      class="filters-footer",
+      actionButton("confirm_filters", "OK", class="close-btn")      
+    )
+  )
 )

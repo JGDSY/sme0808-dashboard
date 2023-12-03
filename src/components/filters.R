@@ -427,17 +427,3 @@ map_filter <- div(
         ethnicity_type_filter,
     )
 )
-
-filters_modal <- modalDialog(
-  title = "Filtragem de Dados",
-  div(
-    class="filters-box",
-    filters1,
-    filters2,
-    filters3,
-    map_filter
-  ),
-  footer = modalButton("OK"),
-  easyClose = TRUE,
-  size = "l"
-)

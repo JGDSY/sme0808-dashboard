@@ -29,8 +29,7 @@ css <- "
   padding-right: 40px;
 }
 
-.panel_title {
-    padding-left: 40px;
+.panel_title, .analysis_title {
     padding-bottom: 30px;
     padding-top: 40px;
     font-size: 22px;
@@ -39,12 +38,7 @@ css <- "
 }
 
 .analysis_title {
-    padding-left: 40px;
-    padding-bottom: 30px;
     padding-top: 60px;
-    font-size: 22px;
-    font-family: 'Montserrat';
-    font-weight: 600;
 }
 
 .cards_panel_main_text {

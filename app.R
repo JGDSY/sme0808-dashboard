@@ -200,7 +200,7 @@ server <- function(input, output, session) {
     })
 
     data_menor <- reactive({
-        get_data_menor(df)
+        get_data_menor(df_filtered())
     })
 
     dt <- reactive({
@@ -209,11 +209,57 @@ server <- function(input, output, session) {
 
     grau <- reactive({
         input$tendency_degree_input
+    
     })
+    
+    dt_i = reactiveVal(NULL)
+    dt_ts = reactiveVal(NULL)
+    dt_i_tendency = reactiveVal(NULL)
+    
+    
+    observeEvent(input$confirm_filters, {
+      dt <- dataset_after_variance_transformation_base(output, input, df_filtered())
+    #   dt_i(dataset_after_variance_transformation2(output, input, dt, data_menor()))
+    #   dt_ts(dataset_after_variance_transformation1(output, input, dt, data_menor()))
+    #  dt_i_tendency(dataset_after_tendency_transformation(output, input, dt_i()))
+    #   output$variance_plot <- renderPlotly({
+    #     render_variance_plot(output, input, dt_i(), dt_ts())
+    #   })
+    # })
+    # 
+    # observeEvent(input$confirm_transformation, {
+    #   output$tendency_plot <- renderPlotly({
+    #     render_tendency_plot(output, input, dt_i_tendency(), dt_i())
+    #   })
+    # })
+    # 
+    # observeEvent(input$confirm_tendency, {
+    #   output$decomposition_plot <- renderPlotly({
+    #     render_decomposition_plot(output, input, dt_i_tendency())
+    #   })
+    # })
+    # 
+    # observeEvent(input$confirm_decomposition, {
+    #   output$autocorrelation_plot <- renderPlotly({
+    #     render_lag_plot_diff(output, input, decomposed_data())
+    #   })
+    })
+    
 
     valores_ajustados_tendencia <- reactive({
         dataset_after_tendency_transformation(output, input, dt(), grau())
     })
+#     dt <- reactive({
+#         dataset_after_variance_transformation_base(output, input, df_filtered())
+#     })
+# 
+#     dt_i <- reactive({
+#         dataset_after_variance_transformation2(output, input, dt(), data_menor())
+#     })
+#     
+#     dt_ts <- reactive({
+#         dataset_after_variance_transformation1(output, input, dt(), data_menor())
+#     })
 
     new_dt_ts_tend <- reactive({
         new_dt_ts_tend = dt() - valores_ajustados_tendencia()
@@ -252,7 +298,7 @@ server <- function(input, output, session) {
 
 
     tsdata <- reactive({
-        get_data_to_lag_plot(df)
+        get_data_to_lag_plot(df_filtered())
     })
 
     monthly <- reactive({
@@ -265,7 +311,7 @@ server <- function(input, output, session) {
         }else{
             render_lag_plot3(output, input, monthly())
         }
-        
+
     })
 
     output$lag_plot2 <- renderPlotly({
@@ -273,8 +319,8 @@ server <- function(input, output, session) {
             render_lag_plot2(output, input, tsdata())
         }else{
             render_lag_plot4(output, input, monthly())
-        }   
-        
+        }
+
     })
 
     decomposed_data <- reactive({
@@ -288,9 +334,9 @@ server <- function(input, output, session) {
 
 
 
-    observeEvent(input$show_filters, {
-      showModal(filters_modal)
-    })
+    # observeEvent(input$show_filters, {
+    #   showModal(filters_modal)
+    # })
 
 
   router$server(input, output, session)
