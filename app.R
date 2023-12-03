@@ -15,7 +15,10 @@ library(ggplot2)
 library(bsicons)
 library(tippy)
 library(shinyBS)
+library(detrendr)
 library(ggpubr)
+library(changepoint)
+library(strucchange)
 
 
 Sys.setlocale("LC_ALL", "pt_PT.UTF-8")
@@ -204,33 +207,49 @@ server <- function(input, output, session) {
         dataset_after_variance_transformation_base(output, input, df)
     })
 
-    dt_i <- reactive({
-        dataset_after_variance_transformation2(output, input, dt(), data_menor())
+    grau <- reactive({
+        input$tendency_degree_input
     })
 
-    dt_ts <- reactive({
-        dataset_after_variance_transformation1(output, input, dt(), data_menor())
+    valores_ajustados_tendencia <- reactive({
+        dataset_after_tendency_transformation(output, input, dt(), grau())
     })
 
-
-    output$variance_plot <- renderPlotly({
-        render_variance_plot(output, input, dt_i(), dt_ts())
+    new_dt_ts_tend <- reactive({
+        new_dt_ts_tend = dt() - valores_ajustados_tendencia()
     })
 
-
-
-    dt_i_tendency <- reactive({
-        dataset_after_tendency_transformation(output, input, dt_i())
-    })
     
 
-    output$tendency_plot <- renderPlotly({
-        render_tendency_plot(output, input, dt_i_tendency(), dt_i())
+
+
+    output$tendency_plot_1 <- renderPlotly({
+        render_tendency_plot_1(output, input, new_dt_ts_tend(), valores_ajustados_tendencia())
     })
 
-    output$decomposition_plot <- renderPlotly({
-        render_decomposition_plot(output, input, dt_i_tendency())
+    output$tendency_plot_2 <- renderPlotly({
+        render_tendency_plot_2(output, input, new_dt_ts_tend())
     })
+
+
+
+    # dt_i_tendency <- reactive({
+    #     dataset_after_tendency_transformation(output, input, dt_i())
+    # })
+    
+    valores_ajustados_sazo <- reactive({
+        prepare_sazonality_plot(output, input, new_dt_ts_tend())
+    })
+
+    output$sazonality_plot_1 <- renderPlotly({
+        render_sazonality_plot_1(output, input, new_dt_ts_tend(), valores_ajustados_sazo())
+    })
+
+    output$sazonality_plot_2 <- renderPlotly({
+        render_sazonality_plot_2(output, input, new_dt_ts_tend(), valores_ajustados_sazo())
+    })
+
+
 
     tsdata <- reactive({
         get_data_to_lag_plot(df)
@@ -259,8 +278,9 @@ server <- function(input, output, session) {
     })
 
     decomposed_data <- reactive({
-        get_decomposition(output, input, dt_i_tendency())
+        new_dt_ts_sazo = new_dt_ts_tend() - valores_ajustados_sazo()
     })
+    
 
     output$autocorrelation_plot <- renderPlotly({
         render_lag_plot_diff(output, input, decomposed_data())
@@ -268,60 +288,6 @@ server <- function(input, output, session) {
 
 
 
-    # output$map <- renderLeaflet({
-    #     render_map(output, input, mapa)
-    # })
-
-  
-
-    # observeEvent(input$map_shape_click, {
-        
-    #     print(clicklist$ids)
-
-    #     proxy <- leafletProxy("map")
-    #     p <- input$map_shape_click
-    #     if (length(p) != 0){
-    #          if (p$id %in% clicklist$ids){
-                
-    #             clicklist$ids <- clicklist$ids[clicklist$ids != p$id]
-    #             tryCatch(
-    #                 expr={
-    #                     proxy %>% removeShape(layerId = paste(p$id, "_high", sep=""))
-    #                     }
-    #             )
-    #         }else{
-    #             clicklist$ids <- c(clicklist$ids, p$id)
-    #             sel_lines <- mapa[mapa$SIGLA_UF %in% c(p$id),]
-    #             sel_lines$SIGLA_UF <- paste(sel_lines$SIGLA_UF, "_high", sep="")
-
-    #             tryCatch(
-    #                 expr={
-    #                     proxy %>% addPolylines(data = sel_lines, smoothFactor = 1,
-    #                                         layerId = as.character(sel_lines$SIGLA_UF),
-    #                                         color="red", weight=1,opacity=1, 
-    #                                         highlightOptions = highlightOptions(color = "green",
-    #                                                                         weight = 5, bringToFront = F, opacity = 1))
-    #                 }
-    #             )
-                
-    #         }
-    #     }else{
-    #         sel_lines <- mapa[mapa$SIGLA_UF %in% clicklist$ids,]
-
-    #         sel_lines$SIGLA_UF <- paste(sel_lines$SIGLA_UF, "_high", sep="")
-            
-    #         proxy %>% addPolylines(data = sel_lines, smoothFactor = 1,
-    #                             layerId = as.character(sel_lines$SIGLA_UF),
-    #                             color="red", weight=1,opacity=1, 
-    #                             highlightOptions = highlightOptions(color = "green",
-    #                                                              weight = 5, bringToFront = F, opacity = 1))
-    #     }
-       
-
-        
-
-    # },ignoreInit = FALSE, ignoreNULL = FALSE)
-    
     observeEvent(input$show_filters, {
       showModal(filters_modal)
     })

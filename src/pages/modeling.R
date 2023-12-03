@@ -26,7 +26,14 @@ css <- "
 
 #transformation_tendency {
     width: 500px;
-    font-size: 18px;
+    font-size: 14px;
+    font-family: 'Montserrat';
+    font-weight: 500;
+}
+
+#transformation_tendency2 {
+    width: 500px;
+    font-size: 14px;
     font-family: 'Montserrat';
     font-weight: 500;
 }
@@ -39,13 +46,13 @@ css <- "
 }
 
 .text_filter {
-    width: 500px;
+    width: 600px;
 
     font-weight: 500;
     padding-left: 40px;
     padding-bottom: 10px;
     padding-top: 40px;
-    font-size: 22px;
+    font-size: 30px;
     font-family: 'Montserrat';
 }
 
@@ -66,9 +73,10 @@ css <- "
 }
 
 .transformation_text {
-    font-size: 18px;
+    font-size: 26px;
     font-family: 'Montserrat';
     font-weight: 500;
+    padding-bottom: 30px;
 }
 
 .transformation_plot {
@@ -81,6 +89,12 @@ css <- "
     padding-bottom: 30px;
 }
 
+.transformation_item{
+    display: flex;
+  flex-flow: row wrap;
+  max-width: inherit;
+}
+
 "
 
 
@@ -91,33 +105,54 @@ transformation_modeling <- div(
     class='transformation_div',
     div(
         class='transformation_text',
-        '',
+        'Modelagem da Tendencia',
         bsPopover(
-            "transformation_variance", "Etapa de Estacionariedade",
-            "A primeira etapa na modelagem de uma serie temporal está relacionada com remover a variancia dos dados, garantindo a estacionariedade da serie. <br> <br> Para isso, existem alguns métodos: <br> <ul> <li> Box-Cox: Se lambda for diferente de zero, ocorre a aplicação da operação (x^(lambda) -1)/(lambda * GM(x)^(lambda-1)) para todos os dados da serie, caso contrario, GM(x)*ln(x)  </li> <li> Log: Aplicação da operação ln(x) para todos os dados da serie</li> <li> Raiz Quadrada: Aplicação da operação x^(1/2) para todos os dados da serie</li> </ul>",
+            "transformation_tendency", "",
+            "Texto Texto Texto",
         options = list(container = "body"))
-        #  tooltip(
-        #     bs_icon("info-circle"),
-        #     "Tooltip message",
-        #     placement = "bottom"
-        # )
     ),
     div(
         class='transformation_item',
-        
-        radioButtons("transformation_variance", "1. Método de Transformação de Variancia",
-            c(
-                "Não Aplicar" ,
-                "Box-Cox" ,
-                "Log",
-                "Raiz Quadrada"
-            ),
-            selected="Box-Cox"
+            
+        div(
+            radioButtons("transformation_tendency2", "Função de Modelagem da Tendencia",
+                c(
+                    "Não Aplicar" ,
+                    "Polinomio" ,
+                    "Linear por Partes"
+                ),
+                selected="Não Aplicar"
+            )
+        ),
+        div(
+                radioButtons("transformation_tendency", "Transformação Para Tendencia",
+                c(
+                    "Não Aplicar",
+                    "Polinomio",
+                    "Log",
+                    "Raiz Quadrada"
+                ),
+                selected="Não Aplicar"
+            )
+        ),
+        div(
+            conditionalPanel(
+                "input.transformation_tendency=='Polinomio' || input.transformation_tendency2=='Polinomio'",
+                numericInput("tendency_degree_input",
+                "Grau do Polinomio", 2, min = 1, max = 100)
+            )
         )
+        
+        
+        
     ),
     div(
         class="transformation_plot",
-        plotlyOutput("variance_plot", width = "100%", height="580px"),
+        plotlyOutput("tendency_plot_1", width = "100%", height="580px"),
+    ),
+     div(
+        class="transformation_plot",
+        plotlyOutput("tendency_plot_2", width = "100%", height="580px"),
     ),
     div(
         class="transformation_confirm",
@@ -125,45 +160,81 @@ transformation_modeling <- div(
     )
 )
 
-tendency_modeling <- div(
+sazonality_modeling <- div(
     class='transformation_div',
     div(
         class='transformation_text',
-        '',
+        'Modelagem da Sazonalidade',
         bsPopover(
-            "transformation_tendency", "Etapa de Retirada da Tendencia",
+            "transformation_sazonalidade", "Transformação para Sazonalidade",
             "Na segunda etapa acontece a retirada da tendencia da serie temporal. <br> <br> Existem diversos métodos para realização dessa etapa: <br> <ul><li>Media Movel: </li>  <li>Diferenciação:</li></ul>",
         options = list(container = "body"))
     ),
     div(
         class='transformation_item',
-        radioButtons("transformation_tendency", "2. Método de Transformação de Tendencia:",
+        radioButtons("transformation_sazonalidade", "Transformação Para Sazonalidade",
             c(
-                "Não Aplicar",
-                "Media Movel", 
-                "Diferenciação"
+                "Senoide", 
+                "Fourier"
             )
         ),
-        conditionalPanel(
-            "input.transformation_tendency=='Media Movel'",
-            numericInput("transformation_rollavg_input",
-            "Janela da Media Movel", 1, min = 1, max = 1000)
+        div(
+            
+            conditionalPanel(
+                "input.transformation_sazonalidade=='Senoide'",
+                radioButtons("transformation_random", "Escolha dos Pametros da Senoid",
+                c(
+                    "Heuristica Padrão", 
+                    "Definir Manualmente"
+                )
+                )
+            ),
+
+            
         ),
         conditionalPanel(
-            "input.transformation_tendency=='Diferenciação'",
-            numericInput("transformation_diff_input",
-            "Ordem de Diferenciação", 1, min = 1, max = 10)
+                "input.transformation_random=='Definir Manualmente'",
+            
+            conditionalPanel(
+                "input.transformation_sazonalidade=='Senoide'",
+                numericInput("transformation_sazonalitya",
+                "Valor Inicial A", 1)
+            ),
+            conditionalPanel(
+                "input.transformation_sazonalidade=='Senoide'",
+                numericInput("transformation_sazonalityb",
+                "Valor Inicial B", 2)
+            ),
+            conditionalPanel(
+                "input.transformation_sazonalidade=='Senoide'",
+                numericInput("transformation_sazonalityc",
+                "Valor Inicial C",1)
+            ),
+            conditionalPanel(
+                "input.transformation_sazonalidade=='Senoide'",
+                numericInput("transformation_sazonalityd",
+                "Valor Inicial D",1)
+            )
+            ),
+        conditionalPanel(
+            "input.transformation_sazonalidade=='Fourier'",
+            numericInput("transformation_sazonalityfourrier",
+            "Numero Maximo de Termos", 5, min = 1)
         )
 
     ),
 
     div(
         class="transformation_plot",
-        plotlyOutput("tendency_plot", width = "100%"),
+        plotlyOutput("sazonality_plot_1", width = "100%"),
+    ),
+     div(
+        class="transformation_plot",
+        plotlyOutput("sazonality_plot_2", width = "100%"),
     ),
     div(
         class="transformation_confirm",
-        actionButton("confirm_tendency", "Confirmar Transformação"),
+        actionButton("confirm_sazonality", "Confirmar Transformação"),
     )
 )
 
@@ -171,7 +242,7 @@ autocorrelation_modeling <- div(
     class='transformation_div',
     div(
         class='transformation_text',
-        '4. Analise da Autocorrelação',
+        'Analise da Autocorrelação',
     ),
     div(
         class="transformation_plot",
@@ -183,35 +254,7 @@ autocorrelation_modeling <- div(
     )
 )
 
-decomposition_modeling <- div(
-    class='transformation_div',
-    div(
-        class='transformation_text',
-        '',
-        bsPopover(
-            "transformation_decomposition", "Etapa de Decomposição da Serie",
-            "A ultima etapa da modelagem consiste em extrair e visualizar em diferentes graficos a tendencia, a sazonalidade e o ruido.",
-        options = list(container = "body"))
-    ),
-    div(
-        class='transformation_item',
-        radioButtons("transformation_decomposition", "3. Método de Decomposição da Serie",
-            c(
-                "Não Aplicar" ,
-                "Decomposição Aditiva",
-                "Decomposição Multiplicativa" 
-            ),
-        )
-    ),
-    div(
-        class="transformation_plot",
-        plotlyOutput("decomposition_plot", width = "100%", height="640px"),
-    ),
-    div(
-        class="transformation_confirm",
-        actionButton("confirm_decomposition", "Confirmar Transformação"),
-    )
-)
+
 
 
 modeling_page <- div(
@@ -253,10 +296,6 @@ modeling_page <- div(
 #    ),
 
 
-    div(
-        class="text_filter",
-        "Modelagem da Serie Temporal"
-    ),
     div(
         class="text_explanation_filter",
         # div(
@@ -315,15 +354,12 @@ modeling_page <- div(
         conditionalPanel(
             condition="input.confirm_transformation==1",
             div(
-                tendency_modeling,
+                sazonality_modeling,
                 conditionalPanel(
-                    condition="input.confirm_tendency==1",
+                    condition="input.confirm_sazonality==1",
                     div(
-                        decomposition_modeling,
-                        conditionalPanel(
-                            condition="input.confirm_decomposition==1",
-                            autocorrelation_modeling
-                        )
+                        autocorrelation_modeling,
+
                     )
                 )
             )
