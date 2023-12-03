@@ -56,8 +56,6 @@ render_frequency_plot <- function(output, input, df){
     if (input_value == "Dia"){
         xaxis = "Dias"
 
-        
-
         if (type_ == "Agrupada"){
             df_ts <- df[, sum(value), by = DT_NOTIFIC][order(-DT_NOTIFIC)]
             fig <- switch_transformations_individual(df_ts, input, "DT_NOTIFIC")
@@ -65,8 +63,13 @@ render_frequency_plot <- function(output, input, df){
             df_ts <- df[, sum(value), by = list(DT_NOTIFIC, SG_UF)][order(-DT_NOTIFIC)]
             fig <- switch_transformations_grouped(df_ts, input, "DT_NOTIFIC", "SG_UF")
         }else if(type_ == "Individual por Cor/Raça/Etnia"){
-            df_ts <- df[, sum(value), by = c(DT_NOTIFIC, CS_RACA)][order(-DT_NOTIFIC)]
+            df_ts <- df[, sum(value), by = list(DT_NOTIFIC, CS_RACA)][order(-DT_NOTIFIC)]
             fig <- switch_transformations_grouped(df_ts, input, "DT_NOTIFIC", "CS_RACA")
+        }else if(type_ == "Individual por Tipo de SRAG"){
+            df$CLASSI_FIN = as.factor(df$CLASSI_FIN)
+            levels(df$CLASSI_FIN) <- c('Influenza', 'Outro Virus Respiratorio', 'Outro Agente Etiologico', 'Não Especificado', 'Outros')
+            df_ts <- df[, sum(value), by = list(DT_NOTIFIC, CLASSI_FIN)][order(-DT_NOTIFIC)]
+            fig <- switch_transformations_grouped(df_ts, input, "DT_NOTIFIC", "CLASSI_FIN")
         }
         
 

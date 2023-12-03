@@ -13,7 +13,7 @@ analysis_type_filter <- div(
         pickerInput(
             inputId="analysis_type_input",
             label="",
-            choices=c("Notificações de SRAG", "Obitos", "Internação", "Internação em UTI"),
+            choices=c("Notificações de SRAG", "Obitos", "Internação em UTI"),
             multiple=FALSE,
             selected=c("Notificações de SRAG"),
             options = pickerOptions(

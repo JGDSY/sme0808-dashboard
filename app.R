@@ -158,6 +158,14 @@ server <- function(input, output, session) {
             df_aux <- filter(df_aux, get(col_name) %in% c(1))
         }
 
+        if(input$analysis_type_input == "Obitos"){
+            df_aux <- filter(df_aux, obito %in% c(TRUE))
+        } else if(input$analysis_type_input == "Internação"){
+             df_aux <- filter(df_aux, HOSPITAL %in% c(1))
+        } else if(input$analysis_type_input == "Internação em UTI"){
+             df_aux <- filter(df_aux, UTI %in% c(1))
+        }
+
         return(df_aux)
     })
 
