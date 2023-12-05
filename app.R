@@ -211,22 +211,22 @@ server <- function(input, output, session) {
         get_data_menor(df_filtered())
     })
 
-    dt <- reactive({
-        dataset_after_variance_transformation_base(output, input, df)
-    })
+    # dt <- reactive({
+    #     dataset_after_variance_transformation_base(output, input, df)
+    # })
 
     grau <- reactive({
         input$tendency_degree_input
     
     })
-    
-    dt_i = reactiveVal(NULL)
-    dt_ts = reactiveVal(NULL)
-    dt_i_tendency = reactiveVal(NULL)
+
+    dt = reactiveVal(NULL)
+    # dt_ts = reactiveVal(NULL)
+    # dt_i_tendency = reactiveVal(NULL)
     
     
     observeEvent(input$confirm_filters, {
-      dt <- dataset_after_variance_transformation_base(output, input, df_filtered())
+      dt(dataset_after_variance_transformation_base(output, input, df_filtered()))
     #   dt_i(dataset_after_variance_transformation2(output, input, dt, data_menor()))
     #   dt_ts(dataset_after_variance_transformation1(output, input, dt, data_menor()))
     #  dt_i_tendency(dataset_after_tendency_transformation(output, input, dt_i()))

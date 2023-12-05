@@ -49,20 +49,6 @@ body{
 .container-fluid{
   padding: 0px;
 }
-
-modal-body{
-  background-color: #EAEBEC !important;
-}
-
-.filters-btn {
-  position: absolute;
-  top: 50px;
-  color: #bababa;
-  background-color: #545454;
-  padding: 10px 30px;
-}
-
-
 .tab-pane {
   padding-top: 90px;
 }
