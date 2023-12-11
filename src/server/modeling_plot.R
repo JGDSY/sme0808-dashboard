@@ -10,15 +10,29 @@ get_data_menor <- function(base_i){
 
 dataset_after_variance_transformation_base <- function(output, input, df){
 
-    freq = 365
-
     menor_data = min(df$data_referencia)
     data_menor = c(as.numeric(format(menor_data,'%Y')),
                as.numeric(format(menor_data,'%m')),
                as.numeric(format(menor_data,'%d')))
 
-    dt = df[,.(total = .N),by = data_referencia]
-    dt = dt[order(data_referencia)]
+    if(input$frequency_type_input == "Dia"){
+        freq = 365
+        dt = df[,.(total = .N),by = data_referencia]
+        dt = dt[order(data_referencia)]
+    } else if(input$frequency_type_input == "Semanal"){
+        freq = 365/7
+        dt = df[,.(total = .N),by = week_ano]
+        dt = dt[order(week_ano)]
+    } else {
+        freq = 365/31
+        dt = df[,.(total = .N),by = ano_mes]
+        dt = dt[order(ano_mes)]
+    }
+    
+
+    
+
+    
     dt_ts = ts(dt$total,start = c(data_menor[1],data_menor[2],data_menor[3]),frequency = freq)
 
     return(dt_ts)
@@ -100,7 +114,23 @@ dataset_after_tendency_transformation <- function(output, input, dt_ts, grau){
             dados_todos_segmentos <- bind_rows(lista_segmentos, .id = "Segmento")
             
 
-        } else {
+        } else if(input$transformation_tendency2 == "Media Movel"){
+            rollavg = input$transformation_tendency2_mm
+
+            modelo_sazonalidade = stats::filter(
+                dados_transformados, filter = rep(1/rollavg, rollavg), method = 'convolution', sides = 1
+            )
+
+            return(modelo_sazonalidade)
+
+        }else if(input$transformation_tendency2 == "Box-Cox"){
+            box = BoxCox(dados_transformados, "auto")
+            input$lambda = box[,"attr"]
+            modelo_tendencia = tslm(dados_transformados ~ BoxCox(dados_transformados, "auto"))
+
+        }
+        
+        else {
             modelo_tendencia = tslm(dados_transformados ~ trend)
         }
 
@@ -110,7 +140,7 @@ dataset_after_tendency_transformation <- function(output, input, dt_ts, grau){
             valores_ajustados_tendencia = fitted(modelo_tendencia)
             
 
-             if(input$transformation_tendency == "Log"){
+            if(input$transformation_tendency == "Log"){
                 valores_ajustados_tendencia <- exp(fitted(modelo_tendencia))
             } else if(input$transformation_tendency == "Raiz Quadrada"){
                 valores_ajustados_tendencia <- (fitted(modelo_tendencia)^2)
@@ -214,7 +244,7 @@ render_tendency_plot_2 <- function(output, input, new_dt_ts_tend){
 
 
 
-prepare_sazonality_plot <- function(output, input, new_dt_ts_tend){
+prepare_sazonality_plot <- function(output, input, new_dt_ts_tend, seasonal_inv){
 
     if (input$transformation_sazonalidade == 'Senoide') {
             seus_dados_df <- data.frame(x = time(new_dt_ts_tend), y = as.vector(new_dt_ts_tend))
@@ -238,6 +268,12 @@ prepare_sazonality_plot <- function(output, input, new_dt_ts_tend){
                                         data = seus_dados_df, 
                                         start = list(a = valor_inicial_a, b = valor_inicial_b, c = valor_inicial_c, d = valor_inicial_d),
                                         algorithm = "port")
+
+            
+
+            seasonal_inv$data = modelo_sazonalidade
+
+            
         
     } else if (input$transformation_sazonalidade == 'Fourier') {
             #max_termos senoidais (pedir para o usuário)
@@ -255,29 +291,71 @@ prepare_sazonality_plot <- function(output, input, new_dt_ts_tend){
             }
             
             modelo_sazonalidade <- lm(new_dt_ts_tend ~ termos_fourier)
+
+            modelo_sazonalidade_inv <- lm(termos_fourier ~ new_dt_ts_tend)
+            seasonal_inv$data = modelo_sazonalidade_inv
         
+    } else if (input$transformation_sazonalidade == "Diferenciação"){
+        lag_dif = input$transformation_sazonality_diff
+        modelo_sazonalidade = diff(new_dt_ts_tend, differences = lag_dif)
+
+        seasonal_inv$data = modelo_sazonalidade_inv
+
+        return(modelo_sazonalidade)
+
+    }else if (input$transformation_sazonalidade == "Media Movel"){
+        rollavg = input$transformation_sazonality_mm
+
+        modelo_sazonalidade = stats::filter(
+            new_dt_ts_tend, filter = rep(1/rollavg, rollavg), method = 'convolution', sides = 1
+        )
+
+        return(modelo_sazonalidade)
+
+    } else {
+        return(0)
     }
+
+
     valores_ajustados_sazo <- fitted(modelo_sazonalidade)
     
 }
 
 render_sazonality_plot_1 <- function(output, input, new_dt_ts_tend, valores_ajustados_sazo){
-    dados_sazo <- data.frame(
-        Tempo = time(new_dt_ts_tend),
-        Original = as.vector(new_dt_ts_tend),
-        Ajustado = valores_ajustados_sazo
-    )
+    if (input$transformation_sazonalidade == "Diferenciação"){
 
-    ggplot(dados_sazo, aes(x = Tempo)) +
-    geom_line(aes(y = Original), color = "black") +
-    geom_line(aes(y = Ajustado), color = "red", linetype = "dashed") +
-    labs(title = "Série Original vs. Ajustada") +
-    theme_minimal()
+        title2 = 'Série Diferenciada'
+        ytitle2 = 'Valores diferenciados'
+        plot2 = ggplotly(autoplot(valores_ajustados_sazo)) %>% 
+        layout(yaxis = list(title = ytitle2))
+    }else {
+        dados_sazo <- data.frame(
+            Tempo = time(new_dt_ts_tend),
+            Original = as.vector(new_dt_ts_tend),
+            Ajustado = valores_ajustados_sazo
+        )
+        ggplot(dados_sazo, aes(x = Tempo)) +
+        geom_line(aes(y = Original), color = "black") +
+        geom_line(aes(y = Ajustado), color = "red", linetype = "dashed") +
+        labs(title = "Série Original vs. Ajustada") +
+        theme_minimal()
+        
+    }
+    
+
+    
 }
 
 
 render_sazonality_plot_2 <- function(output, input, new_dt_ts_tend, valores_ajustados_sazo){
-    new_dt_ts_sazo = new_dt_ts_tend - valores_ajustados_sazo
+    print(new_dt_ts_tend)
+    print(valores_ajustados_sazo)
+     if (input$transformation_sazonalidade == "Diferenciação"){
+        autoplot(valores_ajustados_sazo)
+     }else{
+        new_dt_ts_sazo = new_dt_ts_tend - valores_ajustados_sazo
     autoplot(new_dt_ts_sazo)
+     }
+    
 }
 

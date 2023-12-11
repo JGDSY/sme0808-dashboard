@@ -235,6 +235,7 @@ home_page <- fluidPage(
   ),
   class="headerdiv",
   navbarPage(
+    id = "tabs",
     inverse = TRUE,
     title = "SME0808 - DATASUS",
     tabPanel(title = "Exploração visual", descriptive_analysis_page),

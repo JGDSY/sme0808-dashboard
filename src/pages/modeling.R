@@ -119,7 +119,8 @@ transformation_modeling <- div(
                 c(
                     "Não Aplicar" ,
                     "Polinomio" ,
-                    "Linear por Partes"
+                    "Linear por Partes",
+                    'Box-Cox'
                 ),
                 selected="Não Aplicar"
             )
@@ -131,11 +132,18 @@ transformation_modeling <- div(
                     "Polinomio",
                     "Log",
                     "Raiz Quadrada"
+                    
                 ),
                 selected="Não Aplicar"
             )
         ),
+        conditionalPanel(
+            "input.transformation_tendency2=='Media Movel'",
+            numericInput("transformation_tendency2_mm",
+                "Janela da Media Movel", 2)
+        ),
         div(
+            
             conditionalPanel(
                 "input.transformation_tendency=='Polinomio' || input.transformation_tendency2=='Polinomio'",
                 numericInput("tendency_degree_input",
@@ -148,7 +156,7 @@ transformation_modeling <- div(
     ),
     div(
         class="transformation_plot",
-        plotlyOutput("tendency_plot_1", width = "100%", height="580px"),
+        plotlyOutput("tendency_plot_1", width = "80%", height="580px"),
     ),
      div(
         class="transformation_plot",
@@ -174,8 +182,12 @@ sazonality_modeling <- div(
         class='transformation_item',
         radioButtons("transformation_sazonalidade", "Transformação Para Sazonalidade",
             c(
+                "Não Aplicar",
                 "Senoide", 
-                "Fourier"
+                "Fourier",
+                "Media Movel",
+                "Diferenciação",
+                "LOESS"
             )
         ),
         div(
@@ -191,6 +203,16 @@ sazonality_modeling <- div(
             ),
 
             
+        ),
+        conditionalPanel(
+            "input.transformation_sazonalidade=='Media Movel'",
+            numericInput("transformation_sazonality_mm",
+                "Janela da Media Movel", 2)
+        ),
+        conditionalPanel(
+            "input.transformation_sazonalidade=='Diferenciação'",
+            numericInput("transformation_sazonality_diff",
+                "Ordem de Diferenciação", 1)
         ),
         conditionalPanel(
                 "input.transformation_random=='Definir Manualmente'",
@@ -226,7 +248,7 @@ sazonality_modeling <- div(
 
     div(
         class="transformation_plot",
-        plotlyOutput("sazonality_plot_1", width = "100%"),
+        plotlyOutput("sazonality_plot_1", width = "80%"),
     ),
      div(
         class="transformation_plot",
@@ -246,8 +268,22 @@ autocorrelation_modeling <- div(
     ),
     div(
         class="transformation_plot",
-        plotlyOutput("autocorrelation_plot", width = "100%", height="640px"),
+        plotlyOutput("autocorrelation_plot", width = "80%", height="420px"),
     ),
+    div(
+        class="transformation_plot",
+        plotlyOutput("autocorrelation_plot2", width = "80%", height="420px"),
+    ),
+    div(
+        class="recommendation",
+        textOutput('stationary_test'),
+    ),
+    div(
+        class="recommendation",
+        textOutput('recomendation_model')
+    ),
+    
+    
     div(
         class="transformation_confirm",
         actionButton("confirm_autocorrelation", "Confirmar Transformação"),
@@ -359,6 +395,9 @@ modeling_page <- div(
                     div(
                         autocorrelation_modeling,
 
+                    ),
+                    div(
+                        
                     )
                 )
             )

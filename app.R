@@ -19,6 +19,7 @@ library(detrendr)
 library(ggpubr)
 library(changepoint)
 library(strucchange)
+library(investr)
 
 
 Sys.setlocale("LC_ALL", "pt_PT.UTF-8")
@@ -211,22 +212,22 @@ server <- function(input, output, session) {
         get_data_menor(df_filtered())
     })
 
-    # dt <- reactive({
-    #     dataset_after_variance_transformation_base(output, input, df)
-    # })
+    dt <- reactive({
+        dataset_after_variance_transformation_base(output, input, df_filtered())
+    })
 
     grau <- reactive({
         input$tendency_degree_input
     
     })
 
-    dt = reactiveVal(NULL)
+    # dt = reactiveVal(NULL)
     # dt_ts = reactiveVal(NULL)
     # dt_i_tendency = reactiveVal(NULL)
     
     
     observeEvent(input$confirm_filters, {
-      dt(dataset_after_variance_transformation_base(output, input, df_filtered()))
+    #   dt(dataset_after_variance_transformation_base(output, input, df_filtered()))
     #   dt_i(dataset_after_variance_transformation2(output, input, dt, data_menor()))
     #   dt_ts(dataset_after_variance_transformation1(output, input, dt, data_menor()))
     #  dt_i_tendency(dataset_after_tendency_transformation(output, input, dt_i()))
@@ -270,7 +271,11 @@ server <- function(input, output, session) {
 #     })
 
     new_dt_ts_tend <- reactive({
-        new_dt_ts_tend = dt() - valores_ajustados_tendencia()
+        if (input$transformation_tendency2 == "Box-Cox"){
+            new_dt_ts_tend = valores_ajustados_tendencia()
+        }else{
+            new_dt_ts_tend = dt() - valores_ajustados_tendencia()
+        }
     })
 
     
@@ -290,9 +295,11 @@ server <- function(input, output, session) {
     # dt_i_tendency <- reactive({
     #     dataset_after_tendency_transformation(output, input, dt_i())
     # })
+
+    seasonal_inv <- reactiveValues(data=NULL)
     
     valores_ajustados_sazo <- reactive({
-        prepare_sazonality_plot(output, input, new_dt_ts_tend())
+        prepare_sazonality_plot(output, input, new_dt_ts_tend(), seasonal_inv)
     })
 
     output$sazonality_plot_1 <- renderPlotly({
@@ -332,7 +339,14 @@ server <- function(input, output, session) {
     })
 
     decomposed_data <- reactive({
-        new_dt_ts_sazo = new_dt_ts_tend() - valores_ajustados_sazo()
+        if (input$transformation_sazonalidade == "Diferenciação"){
+            dd(input$transformation_sazonalidade_diff)
+            new_dt_ts_sazo =  valores_ajustados_sazo()
+        }
+        else{
+            new_dt_ts_sazo = new_dt_ts_tend() - valores_ajustados_sazo()
+        }
+        
     })
     
 
@@ -340,11 +354,251 @@ server <- function(input, output, session) {
         render_lag_plot_diff(output, input, decomposed_data())
     })
 
+    output$autocorrelation_plot2 <- renderPlotly({
+        render_lag_plot_diff2(output, input, decomposed_data())
+    })
+
+    output$stationary_test <- renderText({
+        test = tseries::kpss.test(decomposed_data())
+        print(test)
+
+        if(test$p.value <= 0.05){
+            return(
+                paste0(paste0("Pelo teste KPSS, a serie não é estacionaria com valor-p=", test$p.value), ". Refaça os ajustes necessarios")
+            )
+        }else{
+            return(paste0("Pelo teste KPSS, a serie é estacionaria com valor-p=", test$p.value))
+        }
+    })
+
+    p = reactiveVal(NULL)
+    qq = reactiveVal(NULL)
+    dd = reactiveVal(NULL)
+
+    output$recomendation_model <- renderText({
+        check <- function(val, n){
+            up = 2/sqrt(n)
+
+            for(i in c(1:30)){
+                print(abs(val$acf[i]))
+                print(up)
+                print("-------")
+                if(abs(val$acf[i]) < up){
+                    if(i < 15){
+                        print(i)
+                        print("foi")
+                        return(i)
+                    }
+                    else{
+                        return(0)
+                    }
+                    
+                }
+            }
+            return(0)
+        }
+
+
+        ma = check(
+            acf(decomposed_data(), pl=F,lag=30), length(decomposed_data())
+        )
+        
+        ar = check(
+            pacf(decomposed_data(), pl=F,lag=30), length(decomposed_data())
+        )
+
+        p(ma)
+        qq(ar)
+
+        if(input$transformation_sazonalidade == "Diferenciação"){
+             updateNumericInput(session, "ARIMA_i", value=input$transformation_sazonality_diff)
+        }else{
+             updateNumericInput(session, "ARIMA_i", value=0)
+        }
+       
+
+        
+
+        if (ma != 0 && ar != 0){
+            ma = ma - 1
+            updateNumericInput(session, "ARIMA_p", value=ar)
+            updateNumericInput(session, "ARIMA_q", value=ma)
+            if(input$transformation_sazonalidade == "Diferenciação"){
+                return(
+                paste0(paste0(paste0(
+                    paste0(
+                        paste0("Recomendamos que você use um modelo ARIMA com p=", ma),
+                        " e q="
+                    ),
+                    ar
+                )," e d="), input$transformation_sazonality_diff)
+            )
+            }
+            else{
+                return(
+                paste0(
+                    paste0(
+                        paste0("Recomendamos que você use um modelo ARMA com p=", ma),
+                        " e q="
+                    ),
+                    ar
+                )
+            )
+            }
+            
+        } else if (ma == 0 && ar != 0){
+            updateNumericInput(session, "ARIMA_p", value=ar)
+            updateNumericInput(session, "ARIMA_q", value=0)
+            return(paste0("Recomendamos que você use um modelo AR com p=", ar))
+        } else if (ma != 0 && ar == 0){
+            ma = ma - 1
+            updateNumericInput(session, "ARIMA_p", value=0)
+            updateNumericInput(session, "ARIMA_q", value=ma)
+            return(paste0("Recomendamos que você use um modelo MA com q=", ma))
+        } else if (ma ==0 && ar == 0){
+            return("Não conseguimos recomendar nenhum modelo. Refaça as transformações.")
+        }
+
+
+        
+
+        
+    })
+
 
 
     # observeEvent(input$show_filters, {
     #   showModal(filters_modal)
     # })
+
+    observeEvent(input$confirm_autocorrelation,{
+        updateTabsetPanel(session, "tabs", "Modelos preditivos")
+    })
+
+    best_fit <- reactiveVal(0)
+    adjusted_fit <- reactiveVal(0)
+    fittedd <- reactiveVal(F)
+
+    observeEvent(input$model_selection,{
+        best <- auto.arima(decomposed_data())
+        if(input$model_choice == "Auto ARIMA (Seleção Automatica)"){
+            print("aaaaaaaaaaaaaaaaaaaa")
+            fit <- auto.arima(decomposed_data())
+            print(fit)
+        }else if(input$model_choice == "ARIMA"){
+            print("bbbbbbbbb")
+            fit <- arima(decomposed_data(), order=c(input$ARIMA_p,input$ARIMA_i,input$ARIMA_q))
+            print(fit)
+        }else if(input$model_choice == "AR"){
+            print("bbbbbbbbb")
+            fit <- arima(decomposed_data(), order=c(input$ARIMA_p,input$ARIMA_i,0))
+            print(fit)
+            
+        }else if(input$model_choice == "MA"){
+            print("bbbbbbbbb")
+            fit <- arima(decomposed_data(), order=c(0,input$ARIMA_i,input$ARIMA_q))
+            print(fit)
+            
+        }else if(input$model_choice == "ARMA"){
+            print("bbbbbbbbb")
+            fit <- arima(decomposed_data(), order=c(0,input$ARIMA_i,input$ARIMA_q))
+            print(fit)
+            
+        }
+
+        best_fit(best)
+        adjusted_fit(fit)
+        fittedd(T)
+
+        output$table_metrics <- renderTable({
+            print("entrou")
+            if(fittedd() == T){
+                print("bbbbbbbb")
+                print(adjusted_fit()$bic)
+                print(best_fit()$bic)
+                a <- data.table(
+                        Modelo = c("Ajustado","Auto Arima", "Diferença"),
+                        AIC = c(adjusted_fit()$aic, best_fit()$aic, adjusted_fit()$aic-best_fit()$aic),
+                        loglik = c(adjusted_fit()$loglik, best_fit()$loglik, adjusted_fit()$loglik-best_fit()$loglik),
+                        sigma2 = c(adjusted_fit()$sigma2, best_fit()$sigma2, adjusted_fit()$sigma2-best_fit()$sigma2),
+                        p=c(input$ARIMA_p, arimaorder(best_fit())['p'][1], input$ARIMA_p-arimaorder(best_fit())['p'][1]),
+                        q=c(input$ARIMA_q, arimaorder(best_fit())['q'][1], input$ARIMA_q-arimaorder(best_fit())['q'][1]),
+                        i=c(input$ARIMA_i, arimaorder(best_fit())['d'][1], input$ARIMA_i-arimaorder(best_fit())['d'][1])
+                    )
+                print(a)
+                return(a)
+            }
+            
+            
+            
+        })
+
+        
+
+
+        output$residuals <- renderPlotly({
+           simulated_data_adjusted <- as.vector(simulate(adjusted_fit(), nsim = length(decomposed_data())))
+            simulated_acf_adjusted <- acf(simulated_data_adjusted, lag.max = 20, plot = F)
+            
+
+
+            pp = checkresiduals(fit, plot=F)
+            names(pp)
+            pp$p.value
+
+            print(pp)
+
+            output$residual_text <- renderText({
+                if(pp$p.value < 0.05){
+                    return(paste0("Pelo teste Ljung-Box temos que os residuos NÃO são independentes, com valor-p=", pp$p.value))
+                }else{
+                    return(paste0("Pelo teste Ljung-Box temos que os residuos são independentes, com valor-p=", pp$p.value))
+                }
+                
+            })
+
+            autoplot(simulated_acf_adjusted)
+        })
+
+        output$forecast <- renderPlot({
+            print("forecast")
+            forecast_data = forecast(adjusted_fit())
+            print("forecast2")
+            print(seasonal_inv$data)
+            # seasonal_data <- predict(seasonal_inv$data, forecast_data$mean)
+            # print("forecast3")
+            # print(forecast_data)
+            # print(seasonal_data)
+            print(length(forecast_data))
+            print(length(valores_ajustados_tendencia()))
+            print((forecast_data))
+            print((valores_ajustados_tendencia()))
+            ff = valores_ajustados_tendencia()
+            
+            
+            forecast_data$mean = forecast_data$mean +ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]
+            forecast_data$lower = forecast_data$lower +ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]
+            forecast_data$upper = forecast_data$upper +ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]
+
+            print("iiiiiiiiiiiiiiiii")
+            print(length(forecast_data$x))
+            print(length(ff))
+            forecast_data$x = forecast_data$x + ff
+            
+
+            S = forecast_data
+            print(S)
+            fig <- autoplot(S)
+            print("forecast4")
+            return(fig)
+        })
+
+
+    })
+
+
+    
+
 
 
   router$server(input, output, session)

@@ -108,3 +108,10 @@ render_lag_plot_diff <- function(output, input, data){
 
 }
 
+render_lag_plot_diff2 <- function(output, input, data){
+
+
+   bbb = pacf(data, pl=F,lag=31)
+   G1 = autoplot(bbb)
+
+}

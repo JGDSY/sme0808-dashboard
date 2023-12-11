@@ -11,9 +11,7 @@ frequency_plot_div <- div(
         class="plot_principal",
         div(
             class="custom_filters",
-            div(
-                frequency_type_filter
-            ),
+
             div(
                 frequency_average_type,
                 conditionalPanel(

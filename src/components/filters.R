@@ -295,7 +295,7 @@ frequency_type_filter <- div(
             label="",
             choices=c("Dia", "Semana", "Mes"),
             multiple=FALSE,
-            selected=c("Dia"),
+            selected=c("Semana"),
             options = pickerOptions(
                 actionsBox = TRUE,
                 size = 10,
@@ -368,9 +368,9 @@ lag_type_filter <- div(
         pickerInput(
             inputId="lag_input",
             label="",
-            choices=c("Diario", "Mensal"),
+            choices=c("Diario", "Mensal", "Semanal"),
             multiple=FALSE,
-            selected=c("Diario"),
+            selected=c("Semanal"),
             options = pickerOptions(
                 actionsBox = TRUE,
                 size = 10,
@@ -390,6 +390,7 @@ filters1 <- div(
         class="",
         analysis_type_filter,
         year_filter,
+        
         
     )
 )
@@ -415,6 +416,7 @@ filters3 <- div(
         
         age_filter,
         ethnicity_filter,
+        frequency_type_filter
         
     )
 )
