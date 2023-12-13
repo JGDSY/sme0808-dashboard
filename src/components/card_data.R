@@ -31,7 +31,7 @@ card_data <- function(titulo, valor1, texto1, valor2, texto2, plot_key){
         ),
         div(
             class="cards_panel_graph",
-            plotOutput(plot_key, height="60px")
+            shinycssloaders::withSpinner(plotOutput(plot_key, height="60px"))
         )
     )
 

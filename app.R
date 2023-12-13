@@ -20,6 +20,8 @@ library(ggpubr)
 library(changepoint)
 library(strucchange)
 library(investr)
+library(shinycssloaders)
+library(shinyjs)
 
 
 Sys.setlocale("LC_ALL", "pt_PT.UTF-8")
@@ -575,7 +577,13 @@ server <- function(input, output, session) {
             print((valores_ajustados_tendencia()))
             ff = valores_ajustados_tendencia()
             
-            
+            print("aaa")
+            print(forecast_data$mean)
+            print(ff[(length(ff)-length(forecast_data$mean)+1): length(ff)])
+            print(length(forecast_data$mean))
+            print(length(ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]))
+
+
             forecast_data$mean = forecast_data$mean +ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]
             forecast_data$lower = forecast_data$lower +ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]
             forecast_data$upper = forecast_data$upper +ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]
@@ -594,6 +602,25 @@ server <- function(input, output, session) {
         })
 
 
+    })
+
+
+    model_state <- reactiveVal(FALSE)
+
+
+    observeEvent(input$model_selection, {
+        if(model_state() == F){
+            model_state(T)
+            shinyjs::toggle("tab_models")
+        }
+      
+    })
+
+    observeEvent(input$model_reset, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
     })
 
 

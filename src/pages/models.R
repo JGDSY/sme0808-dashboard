@@ -1,6 +1,30 @@
 library(shiny)
 library(bslib)
 
+
+hypothesis_div <- div(
+
+)
+
+residuals_div <- div(
+    div(
+        class='residuals',
+        textOutput('residual_text'),
+        shinycssloaders::withSpinner(plotlyOutput('residuals'))
+    )
+)
+
+prediction_div <- div(
+    div(
+        class='forecast',
+        shinycssloaders::withSpinner(plotOutput('forecast'))
+    )
+)
+
+adjust_metric_div <- div(
+    tableOutput('table_metrics')
+)
+
 models_page <- div(
 
     div(
@@ -33,26 +57,24 @@ models_page <- div(
             )
         ),
 
-        actionButton("model_selection", "Confirmar Modelo!")
+        sliderInput("steps_slider", "Passos de Teste", min = 0, max = 30, value = 0),
+
+        actionButton("model_selection", "Confirmar Modelo!"),
+        actionButton("model_reset", "Resetar Modelo!")
 
 
     ),
-    div(
-        class=""
-    ),
-    div(
-        class='metrics',
-        tableOutput('table_metrics')
-    ),
-    div(
-        class='residuals',
-        textOutput('residual_text'),
-        plotlyOutput('residuals')
-    ),
-    div(
-        class='forecast',
-        plotOutput('forecast')
-    )
-    # plotlyOutput()
+    shinyjs::hidden(div(
+        id="tab_models",
+        tabsetPanel(
+            type="tabs",
+            tabPanel("Métricas de Ajuste", adjust_metric_div),
+            tabPanel("Previsão", prediction_div),
+            tabPanel("Analise de Residuos", residuals_div),
+            tabPanel("Testes de Hipotese", hypothesis_div),
+        )
+
+    ))
 
 )
+

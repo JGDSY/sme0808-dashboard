@@ -133,7 +133,7 @@ coluna2 <- div(
     class = "column_plots",
     div(
         class = "timeseries",
-        plotlyOutput("timeseries_statistics", width = "90%")
+        shinycssloaders::withSpinner((plotlyOutput("timeseries_statistics", width = "90%"))
     ),
     div(
         class = "map",

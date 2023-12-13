@@ -156,11 +156,11 @@ transformation_modeling <- div(
     ),
     div(
         class="transformation_plot",
-        plotlyOutput("tendency_plot_1", width = "80%", height="580px"),
+        shinycssloaders::withSpinner(plotlyOutput("tendency_plot_1", width = "80%", height="580px")),
     ),
      div(
         class="transformation_plot",
-        plotlyOutput("tendency_plot_2", width = "100%", height="580px"),
+        shinycssloaders::withSpinner(plotlyOutput("tendency_plot_2", width = "100%", height="580px")),
     ),
     div(
         class="transformation_confirm",
@@ -248,11 +248,11 @@ sazonality_modeling <- div(
 
     div(
         class="transformation_plot",
-        plotlyOutput("sazonality_plot_1", width = "80%"),
+        shinycssloaders::withSpinner(plotlyOutput("sazonality_plot_1", width = "80%")),
     ),
      div(
         class="transformation_plot",
-        plotlyOutput("sazonality_plot_2", width = "100%"),
+        shinycssloaders::withSpinner(plotlyOutput("sazonality_plot_2", width = "100%")),
     ),
     div(
         class="transformation_confirm",
@@ -268,11 +268,11 @@ autocorrelation_modeling <- div(
     ),
     div(
         class="transformation_plot",
-        plotlyOutput("autocorrelation_plot", width = "80%", height="420px"),
+        shinycssloaders::withSpinner(plotlyOutput("autocorrelation_plot", width = "80%", height="420px")),
     ),
     div(
         class="transformation_plot",
-        plotlyOutput("autocorrelation_plot2", width = "80%", height="420px"),
+        shinycssloaders::withSpinner(plotlyOutput("autocorrelation_plot2", width = "80%", height="420px")),
     ),
     div(
         class="recommendation",
@@ -379,6 +379,10 @@ modeling_page <- div(
                 HTML("<br> Nesta etapa, você poderá avaliar se sua série temporal é estacionária. Uma série estacionária é aquela em que as características estatísticas, como média e variância, permanecem constantes ao longo do tempo. Isso é fundamental para tornar a série temporal mais previsível e interpretável."),
                 style = "info"
             )
+        ),
+        actionButton(
+            "reset_transformation",
+            "Resetar Transformações"
         )
 
     ),

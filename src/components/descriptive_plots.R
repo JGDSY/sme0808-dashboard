@@ -28,7 +28,7 @@ frequency_plot_div <- div(
         div(
             class="plot_principal",
             align = "center",
-            plotlyOutput("frequency_plot", width = "90%")
+            shinycssloaders::withSpinner(plotlyOutput("frequency_plot", width = "90%"))
         )
     ),
 )
@@ -55,7 +55,7 @@ seasonal_plot_div <- div(
     div(
         class="plot_principal",
         align = "center",
-        plotlyOutput("seasonal_plot", width = "90%")
+        shinycssloaders::withSpinner(plotlyOutput("seasonal_plot", width = "90%"))
     )
     
 )
@@ -69,7 +69,7 @@ subseries_plot_div <- div(
     div(
         class="plot_principal",
         align = "center",
-        plotlyOutput("subseries_plot", width = "90%")
+        shinycssloaders::withSpinner(plotlyOutput("subseries_plot", width = "90%"))
     ),
 )
 
@@ -86,9 +86,9 @@ lag_plot_div <- div(
     div(
         class="plot_principal",
         align = "center",
-        plotlyOutput("lag_plot", width = "90%"),
+        shinycssloaders::withSpinner(plotlyOutput("lag_plot", width = "90%")),
         div(class='space'),
-        plotlyOutput("lag_plot2", width = "90%"),
+        shinycssloaders::withSpinner(plotlyOutput("lag_plot2", width = "90%")),
     ),
     
 )
@@ -103,8 +103,8 @@ transformation_plot_div <- div(
     div(
         class="plot_principal",
         align = "center",
-        plotlyOutput("transformation_plot", width = "90%"),
+        shinycssloaders::withSpinner(plotlyOutput("transformation_plot", width = "90%")),
         div(class='space'),
-        plotlyOutput("transformation_plot2", width = "90%")
+        shinycssloaders::withSpinner(plotlyOutput("transformation_plot2", width = "90%"))
     ),
 )
