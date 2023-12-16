@@ -30,7 +30,8 @@ css <- "
 }
 
 .panel_title, .analysis_title {
-    padding-bottom: 30px;
+    padding-left: 40px;
+    padding-bottom: 10px;
     padding-top: 40px;
     font-size: 22px;
     font-family: 'Montserrat';

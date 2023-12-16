@@ -62,8 +62,7 @@ dataset_after_tendency_transformation <- function(output, input, dt_ts, grau){
     if(input$transformation_tendency2 != "Não Aplicar"){
 
         if(input$transformation_tendency2 == "Polinomio"){
-            print(grau)
-            print(typeof(grau))
+
             modelo_tendencia = tslm(dt_ts ~trend + poly(as.vector(time(dt_ts)), 2))
         } else if(input$transformation_tendency2 == "Linear Por Partes"){
             
@@ -122,11 +121,6 @@ dataset_after_tendency_transformation <- function(output, input, dt_ts, grau){
             )
 
             return(modelo_sazonalidade)
-
-        }else if(input$transformation_tendency2 == "Box-Cox"){
-            box = BoxCox(dados_transformados, "auto")
-            input$lambda = box[,"attr"]
-            modelo_tendencia = tslm(dados_transformados ~ BoxCox(dados_transformados, "auto"))
 
         }
         
@@ -246,13 +240,13 @@ render_tendency_plot_2 <- function(output, input, new_dt_ts_tend){
 
 prepare_sazonality_plot <- function(output, input, new_dt_ts_tend, seasonal_inv){
 
+    modelo_sazonalidade = 0
+
     if (input$transformation_sazonalidade == 'Senoide') {
             seus_dados_df <- data.frame(x = time(new_dt_ts_tend), y = as.vector(new_dt_ts_tend))
             
-            chute <- FALSE  # Define se o usuário deseja um chute inicial para os parâmetros
-
             if(input$transformation_random == "Heuristica Padrão"){
-                valor_inicial_a <- max(new_dt_ts_tend) - min(new_dt_ts_tend)
+                valor_inicial_a <- (max(new_dt_ts_tend) - min(new_dt_ts_tend))/2
                 valor_inicial_b <- 2 * pi
                 valor_inicial_c <- pi
                 valor_inicial_d <- (max(new_dt_ts_tend) + min(new_dt_ts_tend))/2
@@ -264,14 +258,42 @@ prepare_sazonality_plot <- function(output, input, new_dt_ts_tend, seasonal_inv)
             }
                        
             
-            modelo_sazonalidade <- nls(y ~ a * sin(b * x + c) + d, 
-                                        data = seus_dados_df, 
-                                        start = list(a = valor_inicial_a, b = valor_inicial_b, c = valor_inicial_c, d = valor_inicial_d),
-                                        algorithm = "port")
+            tryCatch({
+                modelo_sazonalidade <- nls(y ~ a * sin(b * x + c) + d, 
+                    data = seus_dados_df, 
+                    start = list(a = valor_inicial_a, b = valor_inicial_b, c = valor_inicial_c, d = valor_inicial_d),
+                    algorithm = "port"
+                )
+                valores_ajustados_sazo <- fitted(modelo_sazonalidade)
+                return(valores_ajustados_sazo)
+                
+
+                },
+                error = function(cond){
+                    shinyalert(
+                        title = "Erro no Ajuste",
+                        text = "Não foi possivel ajustar um modelo sinoidal com os parametros usados. Teste outros parametros.",
+                        size = "s", 
+                        closeOnEsc = TRUE,
+                        closeOnClickOutside = FALSE,
+                        html = FALSE,
+                        type = "error",
+                        showConfirmButton = TRUE,
+                        showCancelButton = FALSE,
+                        confirmButtonText = "OK",
+                        confirmButtonCol = "#AEDEF4",
+                        timer = 0,
+                        imageUrl = "",
+                        animation = TRUE
+                    )
+                    
+                }
+            
+            )
+            
 
             
 
-            seasonal_inv$data = modelo_sazonalidade
 
             
         
@@ -291,15 +313,15 @@ prepare_sazonality_plot <- function(output, input, new_dt_ts_tend, seasonal_inv)
             }
             
             modelo_sazonalidade <- lm(new_dt_ts_tend ~ termos_fourier)
+            valores_ajustados_sazo <- fitted(modelo_sazonalidade)
+            return(valores_ajustados_sazo)
 
-            modelo_sazonalidade_inv <- lm(termos_fourier ~ new_dt_ts_tend)
-            seasonal_inv$data = modelo_sazonalidade_inv
+
         
     } else if (input$transformation_sazonalidade == "Diferenciação"){
         lag_dif = input$transformation_sazonality_diff
         modelo_sazonalidade = diff(new_dt_ts_tend, differences = lag_dif)
 
-        seasonal_inv$data = modelo_sazonalidade_inv
 
         return(modelo_sazonalidade)
 
@@ -317,7 +339,8 @@ prepare_sazonality_plot <- function(output, input, new_dt_ts_tend, seasonal_inv)
     }
 
 
-    valores_ajustados_sazo <- fitted(modelo_sazonalidade)
+    return(0)
+    
     
 }
 
@@ -348,8 +371,7 @@ render_sazonality_plot_1 <- function(output, input, new_dt_ts_tend, valores_ajus
 
 
 render_sazonality_plot_2 <- function(output, input, new_dt_ts_tend, valores_ajustados_sazo){
-    print(new_dt_ts_tend)
-    print(valores_ajustados_sazo)
+
      if (input$transformation_sazonalidade == "Diferenciação"){
         autoplot(valores_ajustados_sazo)
      }else{

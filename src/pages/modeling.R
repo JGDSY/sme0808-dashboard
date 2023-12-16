@@ -95,6 +95,51 @@ css <- "
   max-width: inherit;
 }
 
+.recommendation_box {
+    color:#555;
+    border-radius:10px;
+    font-family: 'Montserrat';
+    padding-left: 40px;
+    paddding-bottom: 20px;
+    margin-bottom: 10px;
+    margin:10px;
+    background-color: #f44336; /* Red */
+
+    color: white;
+    margin-bottom: 15px;
+    font-size: 16px;
+
+    max-width: 760px;
+    width: 760px;
+}
+
+.recommendation_box2 {
+    color:#555;
+    border-radius:10px;
+    font-family: 'Montserrat';
+    padding-left: 40px;
+    paddding-bottom: 20px;
+    margin-bottom: 10px;
+    margin:10px;
+    background-color: #5b960e; /* Red */
+
+    color: white;
+    margin-bottom: 15px;
+    font-size: 16px;
+
+    max-width: 760px;
+    width: 760px;
+}
+
+.textaaa {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+
+
+
+
 "
 
 
@@ -119,8 +164,7 @@ transformation_modeling <- div(
                 c(
                     "Não Aplicar" ,
                     "Polinomio" ,
-                    "Linear por Partes",
-                    'Box-Cox'
+                    "Linear por Partes"
                 ),
                 selected="Não Aplicar"
             )
@@ -128,13 +172,12 @@ transformation_modeling <- div(
         div(
                 radioButtons("transformation_tendency", "Transformação Para Tendencia",
                 c(
-                    "Não Aplicar",
-                    "Polinomio",
+                    "Identidade",
                     "Log",
                     "Raiz Quadrada"
                     
                 ),
-                selected="Não Aplicar"
+                selected="Identidade"
             )
         ),
         conditionalPanel(
@@ -158,10 +201,10 @@ transformation_modeling <- div(
         class="transformation_plot",
         shinycssloaders::withSpinner(plotlyOutput("tendency_plot_1", width = "80%", height="580px")),
     ),
-     div(
-        class="transformation_plot",
-        shinycssloaders::withSpinner(plotlyOutput("tendency_plot_2", width = "100%", height="580px")),
-    ),
+    #  div(
+    #     class="transformation_plot",
+    #     shinycssloaders::withSpinner(plotlyOutput("tendency_plot_2", width = "100%", height="580px")),
+    # ),
     div(
         class="transformation_confirm",
         actionButton("confirm_transformation", "Confirmar Transformação"),
@@ -184,11 +227,7 @@ sazonality_modeling <- div(
             c(
                 "Não Aplicar",
                 "Senoide", 
-                "Fourier",
-                "Media Movel",
-                "Diferenciação",
-                "LOESS"
-            )
+                "Fourier", "Media Movel"            )
         ),
         div(
             
@@ -245,14 +284,13 @@ sazonality_modeling <- div(
         )
 
     ),
-
     div(
         class="transformation_plot",
         shinycssloaders::withSpinner(plotlyOutput("sazonality_plot_1", width = "80%")),
     ),
      div(
         class="transformation_plot",
-        shinycssloaders::withSpinner(plotlyOutput("sazonality_plot_2", width = "100%")),
+        shinycssloaders::withSpinner(plotlyOutput("sazonality_plot_2", width = "80%")),
     ),
     div(
         class="transformation_confirm",
@@ -276,11 +314,28 @@ autocorrelation_modeling <- div(
     ),
     div(
         class="recommendation",
-        textOutput('stationary_test'),
+        div(
+            class="recommendation_box",
+            id="recommendation_box",
+            div(
+                class="textaaa",
+                textOutput('stationary_test')
+            )
+            
+        )
+        
     ),
     div(
         class="recommendation",
-        textOutput('recomendation_model')
+        div(
+            class="recommendation_box2",
+            
+             div(
+                class="textaaa",
+                textOutput('recomendation_model')
+            )
+            
+        )
     ),
     
     
@@ -298,10 +353,7 @@ modeling_page <- div(
         tags$style(HTML(css)),
         tags$link()
     ),
-    div(
-        class="panel_title",
-        "Painel de Tratamento de Tendencia e Sazonalidade "
-    ),
+
     
     
 #     div(

@@ -229,6 +229,8 @@ ns <- NS('home')
 dimensionId <- ns("dimension")
 
 home_page <- fluidPage(
+  useShinyalert(),
+  useShinyjs(),
   tags$head(
     tags$style(HTML(new_media)),
     tags$script(HTML(js_script))

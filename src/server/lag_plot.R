@@ -1,12 +1,11 @@
 
 get_data_to_lag_plot <- function(df){
 
-    print(df)
     df$DT_NOTIFIC <- as.Date(df$DT_NOTIFIC, format="%d/%m/%Y")
     data <- df %>% group_by(DT_NOTIFIC) %>% summarise(frequency = n())
 
     tsdata = data %>% as_tsibble()
-    print(tsdata)
+
     tsdata <- tsdata %>% fill_gaps(.full = TRUE)
 
     return(tsdata)
@@ -104,14 +103,14 @@ render_lag_plot4 <- function(output, input, monthly){
 render_lag_plot_diff <- function(output, input, data){
 
 
-   G1 = ggAcf(data, lag=31)
+   G1 = ggAcf(data, lag=31, na.action=na.pass)
 
 }
 
 render_lag_plot_diff2 <- function(output, input, data){
 
 
-   bbb = pacf(data, pl=F,lag=31)
+   bbb = pacf(data, pl=F,lag=31, na.action=na.pass)
    G1 = autoplot(bbb)
 
 }

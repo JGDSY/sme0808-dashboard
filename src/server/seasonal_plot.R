@@ -59,7 +59,6 @@ render_seasonal_plot <- function(output, input, base_i){
     }
     dados_plot$dia_semana <- factor(dados_plot$dia_semana, levels = ordem_dia_semana)
     # Criando o grafico iterativo com plot_ly
-    print(dados_plot)
 
     if (type_ == "Agrupada"){
       plot_ly(data = dados_plot, x = ~switch(input$seasonal_type_input,

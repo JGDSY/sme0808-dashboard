@@ -1,0 +1,66 @@
+===============================================================================
+EXTENSION NAME : linecounter
+EXTENSION VERSION : 0.2.7
+-------------------------------------------------------------------------------
+count time : 2023-12-16 06:49:34
+count workspace : /home/andre/Faculdade/DASHBOARD REA/conflito/projeto
+total files : 41
+total code lines : 273737
+total comment lines : 45
+total blank lines : 635
+
+    statistics
+   |      extension|     total code|  total comment|    total blank|percent|
+   -------------------------------------------------------------------------
+   |            .md|             62|              0|             31|  0.023|
+   |             .R|           2356|              0|            593|   0.86|
+   |               |             12|             43|              5| 0.0044|
+   |           .prj|              1|              0|              0|0.00037|
+   |           .cpg|              1|              0|              0|0.00037|
+   |          .json|              1|              0|              0|0.00037|
+   |           .txt|             45|              0|              6|  0.016|
+   |           .csv|         271249|              0|              0|     99|
+   |           .dcf|             10|              2|              0| 0.0037|
+   -------------------------------------------------------------------------
+.gitignore, code is 12, comment is 43, blank is 5.
+.VSCodeCounter/2023-12-16_06-47-34/details.md, code is 11, comment is 0, blank is 6.
+.VSCodeCounter/2023-12-16_06-47-34/diff-details.md, code is 9, comment is 0, blank is 6.
+.VSCodeCounter/2023-12-16_06-47-34/diff.csv, code is 2, comment is 0, blank is 0.
+.VSCodeCounter/2023-12-16_06-47-34/diff.md, code is 12, comment is 0, blank is 7.
+.VSCodeCounter/2023-12-16_06-47-34/diff.txt, code is 19, comment is 0, blank is 3.
+.VSCodeCounter/2023-12-16_06-47-34/results.csv, code is 4, comment is 0, blank is 0.
+.VSCodeCounter/2023-12-16_06-47-34/results.json, code is 1, comment is 0, blank is 0.
+.VSCodeCounter/2023-12-16_06-47-34/results.md, code is 17, comment is 0, blank is 7.
+.VSCodeCounter/2023-12-16_06-47-34/results.txt, code is 26, comment is 0, blank is 3.
+app.R, code is 415, comment is 0, blank is 150.
+data/srag_2012_2019_2_processed.csv, code is 271243, comment is 0, blank is 0.
+data/srag_2012_2019_2_processed.zip, it is a binary file.
+data/srag_2012_2023_2.zip, it is a binary file.
+readme.md, code is 13, comment is 0, blank is 5.
+resources/BR_UF_2022.cpg, code is 1, comment is 0, blank is 0.
+resources/BR_UF_2022.dbf, it is a binary file.
+resources/BR_UF_2022.prj, code is 1, comment is 0, blank is 0.
+resources/BR_UF_2022.shp, it is a binary file.
+resources/BR_UF_2022.shx, it is a binary file.
+rsconnect/shinyapps.io/sme0808-datasus-grupoe/projeto.dcf, code is 10, comment is 2, blank is 0.
+src/components/card_data.R, code is 35, comment is 0, blank is 4.
+src/components/descriptive_plots.R, code is 94, comment is 0, blank is 16.
+src/components/filters.R, code is 375, comment is 0, blank is 56.
+src/components/route.R, code is 6, comment is 0, blank is 2.
+src/pages/about.R, code is 176, comment is 0, blank is 13.
+src/pages/descriptive_analysis.R, code is 45, comment is 0, blank is 7.
+src/pages/home.R, code is 50, comment is 0, blank is 5.
+src/pages/information.R, code is 6, comment is 0, blank is 2.
+src/pages/modeling.R, code is 274, comment is 0, blank is 41.
+src/pages/models.R, code is 66, comment is 0, blank is 18.
+src/pages/plots.R, code is 82, comment is 0, blank is 9.
+src/server/cards_plot.R, code is 13, comment is 0, blank is 3.
+src/server/frequency_plot.R, code is 101, comment is 0, blank is 32.
+src/server/lag_plot.R, code is 73, comment is 0, blank is 43.
+src/server/map.R, code is 15, comment is 0, blank is 9.
+src/server/model_fit.R, code is 104, comment is 0, blank is 28.
+src/server/modeling_plot.R, code is 271, comment is 0, blank is 113.
+src/server/seasonal_plot.R, code is 91, comment is 0, blank is 14.
+src/server/subseries_plot.R, code is 25, comment is 0, blank is 11.
+src/server/transformation_plot.R, code is 39, comment is 0, blank is 17.
+===============================================================================

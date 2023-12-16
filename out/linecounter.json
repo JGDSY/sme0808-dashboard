@@ -1,0 +1,315 @@
+{
+    "extension": "linecounter",
+    "version": "0.2.7",
+    "workspace": "/home/andre/Faculdade/DASHBOARD REA/conflito/projeto",
+    "linecount": [
+        {
+            "version": "0.2.7",
+            "counttime": "2023-12-16 06:49:34",
+            "filesum": 41,
+            "codesum": 273737,
+            "commentsum": 45,
+            "blanksum": 635,
+            "statistics": {
+                ".md": {
+                    "code": 62,
+                    "comment": 0,
+                    "blank": 31
+                },
+                ".R": {
+                    "code": 2356,
+                    "comment": 0,
+                    "blank": 593
+                },
+                "": {
+                    "code": 12,
+                    "comment": 43,
+                    "blank": 5
+                },
+                ".prj": {
+                    "code": 1,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".cpg": {
+                    "code": 1,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".json": {
+                    "code": 1,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".txt": {
+                    "code": 45,
+                    "comment": 0,
+                    "blank": 6
+                },
+                ".csv": {
+                    "code": 271249,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".dcf": {
+                    "code": 10,
+                    "comment": 2,
+                    "blank": 0
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 5,
+                    "code": 12,
+                    "comment": 43,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 6,
+                    "code": 11,
+                    "comment": 0,
+                    "filename": ".VSCodeCounter/2023-12-16_06-47-34/details.md"
+                },
+                {
+                    "blank": 6,
+                    "code": 9,
+                    "comment": 0,
+                    "filename": ".VSCodeCounter/2023-12-16_06-47-34/diff-details.md"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": ".VSCodeCounter/2023-12-16_06-47-34/diff.csv"
+                },
+                {
+                    "blank": 7,
+                    "code": 12,
+                    "comment": 0,
+                    "filename": ".VSCodeCounter/2023-12-16_06-47-34/diff.md"
+                },
+                {
+                    "blank": 3,
+                    "code": 19,
+                    "comment": 0,
+                    "filename": ".VSCodeCounter/2023-12-16_06-47-34/diff.txt"
+                },
+                {
+                    "blank": 0,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": ".VSCodeCounter/2023-12-16_06-47-34/results.csv"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": ".VSCodeCounter/2023-12-16_06-47-34/results.json"
+                },
+                {
+                    "blank": 7,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": ".VSCodeCounter/2023-12-16_06-47-34/results.md"
+                },
+                {
+                    "blank": 3,
+                    "code": 26,
+                    "comment": 0,
+                    "filename": ".VSCodeCounter/2023-12-16_06-47-34/results.txt"
+                },
+                {
+                    "blank": 150,
+                    "code": 415,
+                    "comment": 0,
+                    "filename": "app.R"
+                },
+                {
+                    "blank": 0,
+                    "code": 271243,
+                    "comment": 0,
+                    "filename": "data/srag_2012_2019_2_processed.csv"
+                },
+                {
+                    "filename": "data/srag_2012_2019_2_processed.zip",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/srag_2012_2023_2.zip",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "readme.md"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "resources/BR_UF_2022.cpg"
+                },
+                {
+                    "filename": "resources/BR_UF_2022.dbf",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "resources/BR_UF_2022.prj"
+                },
+                {
+                    "filename": "resources/BR_UF_2022.shp",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "resources/BR_UF_2022.shx",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 10,
+                    "comment": 2,
+                    "filename": "rsconnect/shinyapps.io/sme0808-datasus-grupoe/projeto.dcf"
+                },
+                {
+                    "blank": 4,
+                    "code": 35,
+                    "comment": 0,
+                    "filename": "src/components/card_data.R"
+                },
+                {
+                    "blank": 16,
+                    "code": 94,
+                    "comment": 0,
+                    "filename": "src/components/descriptive_plots.R"
+                },
+                {
+                    "blank": 56,
+                    "code": 375,
+                    "comment": 0,
+                    "filename": "src/components/filters.R"
+                },
+                {
+                    "blank": 2,
+                    "code": 6,
+                    "comment": 0,
+                    "filename": "src/components/route.R"
+                },
+                {
+                    "blank": 13,
+                    "code": 176,
+                    "comment": 0,
+                    "filename": "src/pages/about.R"
+                },
+                {
+                    "blank": 7,
+                    "code": 45,
+                    "comment": 0,
+                    "filename": "src/pages/descriptive_analysis.R"
+                },
+                {
+                    "blank": 5,
+                    "code": 50,
+                    "comment": 0,
+                    "filename": "src/pages/home.R"
+                },
+                {
+                    "blank": 2,
+                    "code": 6,
+                    "comment": 0,
+                    "filename": "src/pages/information.R"
+                },
+                {
+                    "blank": 41,
+                    "code": 274,
+                    "comment": 0,
+                    "filename": "src/pages/modeling.R"
+                },
+                {
+                    "blank": 18,
+                    "code": 66,
+                    "comment": 0,
+                    "filename": "src/pages/models.R"
+                },
+                {
+                    "blank": 9,
+                    "code": 82,
+                    "comment": 0,
+                    "filename": "src/pages/plots.R"
+                },
+                {
+                    "blank": 3,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src/server/cards_plot.R"
+                },
+                {
+                    "blank": 32,
+                    "code": 101,
+                    "comment": 0,
+                    "filename": "src/server/frequency_plot.R"
+                },
+                {
+                    "blank": 43,
+                    "code": 73,
+                    "comment": 0,
+                    "filename": "src/server/lag_plot.R"
+                },
+                {
+                    "blank": 9,
+                    "code": 15,
+                    "comment": 0,
+                    "filename": "src/server/map.R"
+                },
+                {
+                    "blank": 28,
+                    "code": 104,
+                    "comment": 0,
+                    "filename": "src/server/model_fit.R"
+                },
+                {
+                    "blank": 113,
+                    "code": 271,
+                    "comment": 0,
+                    "filename": "src/server/modeling_plot.R"
+                },
+                {
+                    "blank": 14,
+                    "code": 91,
+                    "comment": 0,
+                    "filename": "src/server/seasonal_plot.R"
+                },
+                {
+                    "blank": 11,
+                    "code": 25,
+                    "comment": 0,
+                    "filename": "src/server/subseries_plot.R"
+                },
+                {
+                    "blank": 17,
+                    "code": 39,
+                    "comment": 0,
+                    "filename": "src/server/transformation_plot.R"
+                }
+            ]
+        }
+    ]
+}

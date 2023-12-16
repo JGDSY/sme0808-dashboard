@@ -22,6 +22,8 @@ library(strucchange)
 library(investr)
 library(shinycssloaders)
 library(shinyjs)
+library(shinyalert)
+library(stats)
 
 
 Sys.setlocale("LC_ALL", "pt_PT.UTF-8")
@@ -36,6 +38,8 @@ source("./src/server/transformation_plot.R")
 source("./src/server/modeling_plot.R")
 source("./src/server/lag_plot.R")
 source("./src/server/map.R")
+source("./src/server/model_fit.R")
+
 
 
 ui <- bootstrapPage(
@@ -82,7 +86,6 @@ sintomas_map <- c(
 
 gc()
 
-print(head(df))
 
 
 df_agg_dia <- df[, sum(value), by = DT_NOTIFIC][order(DT_NOTIFIC)]
@@ -91,9 +94,6 @@ df_agg_obito <- na.omit(df_agg_obito)
 df_agg_internacao <- df[, sum(HOSPITAL), by = DT_NOTIFIC][order(DT_NOTIFIC)]
 df_agg_uti <- df[, sum(UTI), by = DT_NOTIFIC][order(DT_NOTIFIC)]
 
-
-print(head(df_agg_dia))
-print(head(df_agg_obito))
 
 # write.csv(df, "srag_2012_2023_2_processed.csv")
 
@@ -285,31 +285,51 @@ server <- function(input, output, session) {
 
 
     output$tendency_plot_1 <- renderPlotly({
-        render_tendency_plot_1(output, input, new_dt_ts_tend(), valores_ajustados_tendencia())
+        print("dddddddddddd")
+        a<-render_tendency_plot_1(output, input, new_dt_ts_tend(), valores_ajustados_tendencia())
+        print("aaaaaaaaaaaaaaaaaaaa")
+         render_tendency_plot_2(output, input, new_dt_ts_tend())
+         print("eeeeeeeeeeee")
+        return(a)
     })
 
-    output$tendency_plot_2 <- renderPlotly({
-        render_tendency_plot_2(output, input, new_dt_ts_tend())
-    })
+    # output$tendency_plot_2 <- renderPlotly({
+    #     render_tendency_plot_2(output, input, new_dt_ts_tend())
+    # })
 
 
 
     # dt_i_tendency <- reactive({
     #     dataset_after_tendency_transformation(output, input, dt_i())
     # })
-
-    seasonal_inv <- reactiveValues(data=NULL)
     
     valores_ajustados_sazo <- reactive({
-        prepare_sazonality_plot(output, input, new_dt_ts_tend(), seasonal_inv)
+        prepare_sazonality_plot(output, input, new_dt_ts_tend())
     })
 
     output$sazonality_plot_1 <- renderPlotly({
-        render_sazonality_plot_1(output, input, new_dt_ts_tend(), valores_ajustados_sazo())
+
+        tryCatch({
+             render_sazonality_plot_1(output, input, new_dt_ts_tend(), valores_ajustados_sazo())
+        },
+        error = function(cond){
+
+        })
+
+        
     })
 
     output$sazonality_plot_2 <- renderPlotly({
-        render_sazonality_plot_2(output, input, new_dt_ts_tend(), valores_ajustados_sazo())
+
+        tryCatch({
+             render_sazonality_plot_2(output, input, new_dt_ts_tend(), valores_ajustados_sazo())
+        },
+        error = function(cond){
+
+        })
+
+
+        
     })
 
 
@@ -362,13 +382,15 @@ server <- function(input, output, session) {
 
     output$stationary_test <- renderText({
         test = tseries::kpss.test(decomposed_data())
-        print(test)
 
         if(test$p.value <= 0.05){
+            runjs('document.getElementById("recommendation_box").style.backgroundColor = "#f44336";')
             return(
+                
                 paste0(paste0("Pelo teste KPSS, a serie não é estacionaria com valor-p=", test$p.value), ". Refaça os ajustes necessarios")
             )
         }else{
+            runjs('document.getElementById("recommendation_box").style.backgroundColor = "#f44336";')
             return(paste0("Pelo teste KPSS, a serie é estacionaria com valor-p=", test$p.value))
         }
     })
@@ -382,13 +404,9 @@ server <- function(input, output, session) {
             up = 2/sqrt(n)
 
             for(i in c(1:30)){
-                print(abs(val$acf[i]))
-                print(up)
-                print("-------")
                 if(abs(val$acf[i]) < up){
                     if(i < 15){
-                        print(i)
-                        print("foi")
+
                         return(i)
                     }
                     else{
@@ -402,11 +420,11 @@ server <- function(input, output, session) {
 
 
         ma = check(
-            acf(decomposed_data(), pl=F,lag=30), length(decomposed_data())
+            acf(decomposed_data(), pl=F,lag=30, na.action=na.pass), length(decomposed_data())
         )
         
         ar = check(
-            pacf(decomposed_data(), pl=F,lag=30), length(decomposed_data())
+            pacf(decomposed_data(), pl=F,lag=30, na.action=na.pass), length(decomposed_data())
         )
 
         p(ma)
@@ -433,14 +451,14 @@ server <- function(input, output, session) {
                         " e q="
                     ),
                     ar
-                )," e d="), input$transformation_sazonality_diff)
+                ),""), "")
             )
             }
             else{
                 return(
                 paste0(
                     paste0(
-                        paste0("Recomendamos que você use um modelo ARMA com p=", ma),
+                        paste0("Recomendamos que você use um modelo ARIMA com p=", ma),
                         " e q="
                     ),
                     ar
@@ -481,127 +499,65 @@ server <- function(input, output, session) {
     adjusted_fit <- reactiveVal(0)
     fittedd <- reactiveVal(F)
 
+    
+
     observeEvent(input$model_selection,{
+        
+        train_series <- get_train_timeseries_split(output, input, decomposed_data)
+        test_series <- get_test_timeseries_split(output, input, decomposed_data)
+
         best <- auto.arima(decomposed_data())
-        if(input$model_choice == "Auto ARIMA (Seleção Automatica)"){
-            print("aaaaaaaaaaaaaaaaaaaa")
-            fit <- auto.arima(decomposed_data())
-            print(fit)
-        }else if(input$model_choice == "ARIMA"){
-            print("bbbbbbbbb")
-            fit <- arima(decomposed_data(), order=c(input$ARIMA_p,input$ARIMA_i,input$ARIMA_q))
-            print(fit)
-        }else if(input$model_choice == "AR"){
-            print("bbbbbbbbb")
-            fit <- arima(decomposed_data(), order=c(input$ARIMA_p,input$ARIMA_i,0))
-            print(fit)
-            
-        }else if(input$model_choice == "MA"){
-            print("bbbbbbbbb")
-            fit <- arima(decomposed_data(), order=c(0,input$ARIMA_i,input$ARIMA_q))
-            print(fit)
-            
-        }else if(input$model_choice == "ARMA"){
-            print("bbbbbbbbb")
-            fit <- arima(decomposed_data(), order=c(0,input$ARIMA_i,input$ARIMA_q))
-            print(fit)
-            
-        }
+        fit <- model_fit(output, input, train_series) 
 
         best_fit(best)
         adjusted_fit(fit)
         fittedd(T)
 
-        output$table_metrics <- renderTable({
-            print("entrou")
-            if(fittedd() == T){
-                print("bbbbbbbb")
-                print(adjusted_fit()$bic)
-                print(best_fit()$bic)
-                a <- data.table(
-                        Modelo = c("Ajustado","Auto Arima", "Diferença"),
-                        AIC = c(adjusted_fit()$aic, best_fit()$aic, adjusted_fit()$aic-best_fit()$aic),
-                        loglik = c(adjusted_fit()$loglik, best_fit()$loglik, adjusted_fit()$loglik-best_fit()$loglik),
-                        sigma2 = c(adjusted_fit()$sigma2, best_fit()$sigma2, adjusted_fit()$sigma2-best_fit()$sigma2),
-                        p=c(input$ARIMA_p, arimaorder(best_fit())['p'][1], input$ARIMA_p-arimaorder(best_fit())['p'][1]),
-                        q=c(input$ARIMA_q, arimaorder(best_fit())['q'][1], input$ARIMA_q-arimaorder(best_fit())['q'][1]),
-                        i=c(input$ARIMA_i, arimaorder(best_fit())['d'][1], input$ARIMA_i-arimaorder(best_fit())['d'][1])
-                    )
-                print(a)
-                return(a)
-            }
-            
-            
-            
-        })
-
         
+    })
 
+    forecasted_data <- reactive({
+        train_series <- get_train_timeseries_split(output, input, decomposed_data=dt)
+        get_forecast_data(output, input, adjusted_fit(), valores_ajustados_tendencia(), valores_ajustados_sazo(), train_series)
+    })
 
-        output$residuals <- renderPlotly({
-           simulated_data_adjusted <- as.vector(simulate(adjusted_fit(), nsim = length(decomposed_data())))
-            simulated_acf_adjusted <- acf(simulated_data_adjusted, lag.max = 20, plot = F)
-            
+    output$forecast <- renderPlot({
+        test_series <- get_test_timeseries_split(output, input,  dt)
+        train_series <- get_train_timeseries_split(output, input, decomposed_data=dt)
+        # test_series <- get_test_timeseries_split(output, input, decomposed_data)
+        get_inverse_transformed_plot(
+            output,
+            input,
+            adjusted_fit(),
+            valores_ajustados_tendencia(),
+            valores_ajustados_sazo(),
+            test_series, decomposed_data(),
+            train_series
+        )
+    })
 
+    output$forecast_metrics <- renderText({
+        if (input$test_steps_slider != 0){
+            data <- forecasted_data()
+            test_series <- get_test_timeseries_split(output, input, decomposed_data)
 
-            pp = checkresiduals(fit, plot=F)
-            names(pp)
-            pp$p.value
+        }else {
 
-            print(pp)
+        }
+        
+    })
 
-            output$residual_text <- renderText({
-                if(pp$p.value < 0.05){
-                    return(paste0("Pelo teste Ljung-Box temos que os residuos NÃO são independentes, com valor-p=", pp$p.value))
-                }else{
-                    return(paste0("Pelo teste Ljung-Box temos que os residuos são independentes, com valor-p=", pp$p.value))
-                }
-                
-            })
+     output$residual_text <- renderText({
+        get_residual_hypothesis_testing(output, input, adjusted_fit())
+     })
 
-            autoplot(simulated_acf_adjusted)
-        })
+    output$residuals <- renderPlotly({
+        train_series <- get_train_timeseries_split(output, input, decomposed_data)
+        get_residual_acf_plot(output, input, adjusted_fit(), train_series)
+    })
 
-        output$forecast <- renderPlot({
-            print("forecast")
-            forecast_data = forecast(adjusted_fit())
-            print("forecast2")
-            print(seasonal_inv$data)
-            # seasonal_data <- predict(seasonal_inv$data, forecast_data$mean)
-            # print("forecast3")
-            # print(forecast_data)
-            # print(seasonal_data)
-            print(length(forecast_data))
-            print(length(valores_ajustados_tendencia()))
-            print((forecast_data))
-            print((valores_ajustados_tendencia()))
-            ff = valores_ajustados_tendencia()
-            
-            print("aaa")
-            print(forecast_data$mean)
-            print(ff[(length(ff)-length(forecast_data$mean)+1): length(ff)])
-            print(length(forecast_data$mean))
-            print(length(ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]))
-
-
-            forecast_data$mean = forecast_data$mean +ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]
-            forecast_data$lower = forecast_data$lower +ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]
-            forecast_data$upper = forecast_data$upper +ff[(length(ff)-length(forecast_data$mean)+1): length(ff)]
-
-            print("iiiiiiiiiiiiiiiii")
-            print(length(forecast_data$x))
-            print(length(ff))
-            forecast_data$x = forecast_data$x + ff
-            
-
-            S = forecast_data
-            print(S)
-            fig <- autoplot(S)
-            print("forecast4")
-            return(fig)
-        })
-
-
+    output$table_metrics <- renderTable({
+        get_fit_metrics_table(output, input, adjusted_fit(), best_fit(), fittedd())
     })
 
 
@@ -622,6 +578,194 @@ server <- function(input, output, session) {
             shinyjs::toggle("tab_models")
         }
     })
+
+    observeEvent(input$model_choice, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$test_steps_slider, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$ARIMA_q, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$ARIMA_p, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$ARIMA_i, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    ###
+    observeEvent(input$transformation_tendency2, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$transformation_tendency, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$tendency_degree_input, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$confirm_transformation, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$transformation_sazonalidade, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+    observeEvent(input$transformation_random, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$transformation_sazonality_mm, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    ###
+
+    observeEvent(input$transformation_sazonalitya, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$transformation_sazonalityb, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$transformation_sazonalityc, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$transformation_sazonalityd, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$transformation_sazonalityfourrier, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$confirm_sazonality, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+
+    observeEvent(input$confirm_autocorrelation, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    ##
+
+    observeEvent(input$analysis_type_input, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$age_window_filter_input, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$year_filter_input, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$ethnicity_type_input, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$sickness_filter_input, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$state_filter_input, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
+    observeEvent(input$lag_input, {
+      if(model_state() == T){
+            model_state(F)
+            shinyjs::toggle("tab_models")
+        }
+    })
+
 
 
     
