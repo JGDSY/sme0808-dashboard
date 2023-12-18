@@ -233,9 +233,9 @@ sazonality_modeling <- div(
             
             conditionalPanel(
                 "input.transformation_sazonalidade=='Senoide'",
-                radioButtons("transformation_random", "Escolha dos Pametros da Senoid",
+                radioButtons("transformation_random", "Escolha dos Pametros do Senoide",
                 c(
-                    "Heuristica Padrão", 
+                    "Heurística Padrão", 
                     "Definir Manualmente"
                 )
                 )
@@ -246,7 +246,7 @@ sazonality_modeling <- div(
         conditionalPanel(
             "input.transformation_sazonalidade=='Media Movel'",
             numericInput("transformation_sazonality_mm",
-                "Janela da Media Movel", 2)
+                "Janela da Média Movel", 2)
         ),
         conditionalPanel(
             "input.transformation_sazonalidade=='Diferenciação'",

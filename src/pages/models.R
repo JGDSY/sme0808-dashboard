@@ -207,7 +207,7 @@ models_page <- div(
         ),
         div(
             class="data_params",
-            sliderInput("test_steps_slider", "Tamanho do Horizonte da Base de Teste", min = 1, max = 10, value = 7)
+            numericInput("test_steps_slider", "Tamanho do Horizonte da Base de Teste", min = 1, max = 300, value = 7) #só troquei pra fazer sentido na predição diária tbm; se algm tiver solução melhor, faça
         )
     ),
 

@@ -146,10 +146,10 @@ descriptive_analysis_page <- div(
     ),
     div(
         class="card_columns",
-        card_data("Notificaçoes de SRAG", textOutput("acc_srag"), "Acumulado", textOutput("mean_srag"), "Media por Dia", "mini_srag_plot"),
-        card_data("Hospitalização", textOutput("acc_internacao"), "Acumulado", textOutput("mean_internacao"), "Media por Dia", "mini_internacao_plot"),
-        card_data("Internações em UTI", textOutput("acc_uti"), "Acumulado", textOutput("mean_uti"), "Media por Dia", "mini_uti_plot"),
-        card_data("Notificaçoes de Obito", textOutput("acc_obito"), "Acumulado", textOutput("mean_obito"), "Media por Dia", "mini_obito_plot"),
+        card_data("Notificaçoes de SRAG", textOutput("acc_srag"), "Acumulado", textOutput("mean_srag"), "Média por Dia", "mini_srag_plot"),
+        card_data("Hospitalização", textOutput("acc_internacao"), "Acumulado", textOutput("mean_internacao"), "Média por Dia", "mini_internacao_plot"),
+        card_data("Internações em UTI", textOutput("acc_uti"), "Acumulado", textOutput("mean_uti"), "Média por Dia", "mini_uti_plot"),
+        card_data("Notificaçoes de Obito", textOutput("acc_obito"), "Acumulado", textOutput("mean_obito"), "Média por Dia", "mini_obito_plot"),
 
     ),
     div(
