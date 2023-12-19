@@ -72,10 +72,10 @@ get_residual_hypothesis_testing  <- function(output, input, adjusted_fit){
 
     if(pp$p.value < 0.05){
         runjs('document.getElementById("residual_box").style.backgroundColor = "#f44336";')
-        return(paste0("Pelo teste Ljung-Box temos que os residuos NÃO são independentes, com valor-p = ", round(pp$p.value, 3)))
+        return(paste0("O teste de Ljung-Box REJEITA a hipótese que os residuos são independentes, com valor-p = ", round(pp$p.value, 3)))
     }else{
         runjs('document.getElementById("residual_box").style.backgroundColor = "#04AA6D";')
-        return(paste0("Pelo teste Ljung-Box temos que os residuos são independentes, com valor-p = ", round(pp$p.value, 3)))
+        return(paste0("O teste de Ljung-Box NÃO REJEITA a independência dos residuos, com valor-p = ", round(pp$p.value, 3)))
     }
         
 
